@@ -27,19 +27,13 @@ namespace CameraView
         {
             InitializeComponent();
 
-            // this.SourceInitialized += this.OnSourceInitialized;
+            this.SourceInitialized += this.OnSourceInitialized;
         }
 
         void OnSourceInitialized(object sender, EventArgs args)
         {
-            /*
-            WindowInteropHelper helper = new WindowInteropHelper(this);
-            */
-
-            // int hwnd = Player.Add(0, 800, 600);
-
-            // NativeHost nativeHost = new NativeHost();
-            // this.Content = nativeHost;
+            NativeHost host = new NativeHost(this.ActualWidth, this.ActualHeight);
+            this.Content = host;
         }
     }
 }

@@ -5,6 +5,5 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:host="clr-namespace:CameraView;assembly=" 
         xmlns:custom="clr-namespace:Win32ControlInWpfWindow;assembly="
-        Title="MainWindow" WindowStyle="SingleBorderWindow">
-    <host:NativeHost Width="640" Height="360" />
+        Title="MainWindow" WindowStyle="SingleBorderWindow" Width="640" Height="360">
 </Window>

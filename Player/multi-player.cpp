@@ -28,34 +28,12 @@ void MultiPlayer::Close()
 
 int MultiPlayer::OnShowFrame()
 {
-#if 0
-	AVPacket packet;
-	int frameFinished = 0;
-	while (av_read_frame(pFormatCtx, &packet) >= 0) {
-		if (packet.stream_index != videoStream)
-			continue;
-
-		AVFrame *pFrame = av_frame_alloc();
-		avcodec_decode_video2(pCodecCtx, pFrame, &frameFinished, &packet);
-		if (!frameFinished)
-			continue;
-
-		shared_ptr<MyAVFrame> frame(new MyAVFrame());
-		frame->SetFrame(pFrame);
-		shared_ptr<MyAVPicture> picture(new MyAVPicture(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height));
-		scaler->Scale(frame, picture);
-		this->ShowFrame(picture);
-
-		break;
-	}
-#endif
-
 	shared_ptr<MyAVFrame> frame = this->mqueue.Get(0, milliseconds(100));
 	if (NULL == frame.get())
 		return 0;
 
 	
-	shared_ptr<MyAVPicture> picture(new MyAVPicture(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height));
+	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
 	scaler->Scale(frame, picture);
 	this->ShowFrame(picture);
 
@@ -76,15 +54,9 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 	switch (event)
 	{
 	case CXM_PLAYER_EVENT_OPENED: {
-		shared_ptr<Stream> stream = mplayer->GetStream(0);
-		pFormatCtx = mplayer->GetContext();
-		pCodecCtx = stream->GetContext();
-		videoStream = 0;
-		LOGD("Get codec context: %p", pCodecCtx);
-
 		// create scaler
-		scaler = Scaler::CreateScaler(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
-			pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, SWS_BILINEAR, NULL, NULL, NULL);
+		shared_ptr<Stream> stream = mplayer->GetStream(0);
+		scaler = Scaler::CreateScaler(stream, GetWidth(), GetHeight());
 		this->AddTimer(0, this, NULL);
 		break;
 	} case CXM_PLAYER_EVENT_STREAM_OPENED: {
@@ -101,11 +73,6 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
                     shared_ptr<MyAVFrame> frame)
 {
-	/*
-	shared_ptr<MyAVPicture> picture(new MyAVPicture(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height));
-	scaler->Scale(frame, picture);
-	this->ShowFrame(picture);
-	*/
 	this->mqueue.Put(frame);
 }
 

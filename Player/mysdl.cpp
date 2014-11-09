@@ -47,11 +47,17 @@ namespace sdl {
 			LOG(LOG_LEVEL_E, "SDL init error");
 			return false;
 		}
-		if (NULL != mopaque)
+		if (NULL != mopaque) {
 			mwindow = SDL_CreateWindowFrom(this->mopaque);
-		else
+			int width = 0;
+			int height = 0;
+			SDL_GetWindowSize(mwindow, &width, &height);
+			LOGD("Get exist window size: %d %d", width, height);
+		} else {
 			mwindow = SDL_CreateWindow("SDLWindow", SDL_WINDOWPOS_CENTERED,
 				SDL_WINDOWPOS_CENTERED, mwidth, mheight, SDL_WINDOW_SHOWN);
+			LOGD("Create window with size: %d %d", mwidth, mheight);
+		}
 		if (NULL == mwindow) {
 			LOGE("Cannot create window from: %p", this->mopaque);
 			return false;
@@ -64,7 +70,7 @@ namespace sdl {
 		this->mtexture = SDL_CreateTexture(mrender, SDL_PIXELFORMAT_YV12,
 			SDL_TEXTUREACCESS_STREAMING, mwidth, mheight);
 		if (NULL == mtexture) {
-			LOGE("Cannot create texture");
+			LOGE("Cannot create texture with size %d %d", mwidth, mheight);
 			return false;
 		}
 		return true;
@@ -106,8 +112,6 @@ namespace sdl {
 		SDL_RenderClear(mrender);
 		SDL_RenderCopy(mrender, mtexture, NULL, &dst);
 		SDL_RenderPresent(mrender);
-
-		// LOG(LOG_LEVEL_D, "TouchDown show time: %d width %d height %d", analysis.Analysis(), mwidth, mheight);
 	}
 
 	void SDL::EventLoop()

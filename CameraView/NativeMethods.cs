@@ -64,6 +64,9 @@ namespace Win32ControlInWpfWindow
         internal static extern bool SetWindowPos(
             IntPtr hwnd, IntPtr hwndInsertAfter, int x, int y, uint width, uint height, uint flags);
 
+        [DllImport("user32.dll", EntryPoint = "MoveWindow", CharSet = CharSet.Auto)]
+        internal static extern bool MoveWindow(
+            IntPtr hwnd, int x, int y, uint width, uint height, bool brepaint);
 
         //
         // Win32 window styles

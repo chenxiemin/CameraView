@@ -12,28 +12,26 @@ namespace CameraView
 {
     class NativeHost : HwndHost
     {
+        private int mwidth = 0;
+        private int mheight = 0;
         private IntPtr handler;
         private DispatcherTimer mtimer;
         private bool misInit = false;
+
+        public NativeHost(double width, double height)
+        {
+            mwidth = (int)width;
+            mheight = (int)height;
+        }
 
         protected override HandleRef BuildWindowCore(HandleRef hwndParent)
         {
             this.handler = NativeMethods.CreateWindowEx(
                 0, "static", "",
                 NativeMethods.WS_CHILD | NativeMethods.WS_VISIBLE | NativeMethods.LBS_NOTIFY,
-                0, 0,
-                (int)Width, (int)Height,
-                hwndParent.Handle,
-                IntPtr.Zero,
-                IntPtr.Zero,
-                0);
+                0, 0, mwidth, mheight, hwndParent.Handle, IntPtr.Zero, IntPtr.Zero, 0);
 
             return new HandleRef(this, handler);
-        }
-
-        protected override System.Windows.Size MeasureOverride(System.Windows.Size constraint)
-        {
-            return constraint;
         }
 
         protected override void DestroyWindowCore(HandleRef hwnd)
@@ -50,12 +48,12 @@ namespace CameraView
 
             switch (message)
             {
-                case NativeMethods.WM_MOVE:
+                case NativeMethods.WM_SIZE:
                     if (!misInit)
                         misInit = true;
                     else
                         break;
-                    SdlPlayer.SdlOpen(handler.ToInt32(), (int)Width, (int)Height);
+                    SdlPlayer.SdlOpen(handler.ToInt32(), mwidth, mheight);
 
                     this.mtimer = new DispatcherTimer();
                     this.mtimer.Interval = TimeSpan.FromMilliseconds(10);

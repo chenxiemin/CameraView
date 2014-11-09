@@ -21,6 +21,8 @@
 #include <memory>
 
 #include "ffmpeg.h"
+#include "stream.h"
+#include "mysdl.h"
 
 namespace cxm {
 namespace av {
@@ -51,6 +53,15 @@ class Scaler {
         std::shared_ptr<Scaler> ptr(new Scaler(srcW, srcH, srcFormat,
                     dstW, dstH, dstFormat, flags, srcFilter, dstFilter, param));
         return ptr;
+    }
+
+	public: static std::shared_ptr<Scaler> CreateScaler(
+		std::shared_ptr<Stream> srcStream, int dstW, int dstH)
+    {
+		AVCodecContext *pCodecCtx = srcStream->GetContext();
+
+		return CreateScaler(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
+			dstW, dstH, cxm::sdl::SDL::PIXEL_FORMAT, SWS_BILINEAR, NULL, NULL, NULL);
     }
 };
 }

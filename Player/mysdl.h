@@ -44,6 +44,7 @@ class SDL
 		ISDLTimer *pcallback;
 		void 				*opaque;
 	};
+	public: static const PixelFormat PIXEL_FORMAT = AV_PIX_FMT_YUV420P;
 	private: static const int CXM_SDL_TIMER_EVENT = SDL_USEREVENT + 2;
 
 	private: int mwidth;
