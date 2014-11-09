@@ -26,24 +26,17 @@ void MultiPlayer::Close()
 	mplayer->Close();
 }
 
-int MultiPlayer::OnShowFrame()
+void MultiPlayer::OnTimer(void *opaque)
 {
+	this->AddTimer(0, this, NULL); // poll
+	
+	// boocked get frame within 100ms
 	shared_ptr<MyAVFrame> frame = this->mqueue.Get(0, milliseconds(100));
 	if (NULL == frame.get())
-		return 0;
-
-	
+		return;
 	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
 	scaler->Scale(frame, picture);
 	this->ShowFrame(picture);
-
-	return 0;
-}
-
-void MultiPlayer::OnTimer(void *opaque)
-{
-	OnShowFrame();
-	this->AddTimer(0, this, NULL);
 }
 
 int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,

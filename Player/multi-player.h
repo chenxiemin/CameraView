@@ -42,8 +42,6 @@ class MultiPlayer : public cxm::sdl::SDL,
 		CXM_PLAYER_EVENT event, void *eventArgs);
 	private: void OnFrame(Stream &stream, void *tag, AVPacket &packet,
 		std::shared_ptr<MyAVFrame> frame);
-
-	private: int OnShowFrame();
 };
 
 }
