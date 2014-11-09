@@ -84,6 +84,7 @@ namespace sdl {
 			SDL_DestroyWindow(mwindow);
 			mwindow = NULL;
 		}
+		SDL_Quit();
 	}
 
 	void SDL::ShowFrame(shared_ptr<MyAVPicture> picture)
@@ -119,8 +120,6 @@ namespace sdl {
 			if (-1 == this->DispatchEvent(event))
 				break;
 		}
-
-		SDL_Quit();
 	}
 
 	void SDL::PollEvent()
