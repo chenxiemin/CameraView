@@ -216,12 +216,9 @@ void Player::OnClose()
 
 int Player::OnFrame()
 {
-	this_thread::sleep_for(milliseconds(100));
-	// LOGE("In function %s", __FUNCTION__);
-#if 0
     // read frame
     Analysiser anal;
-    shared_ptr<DYAVPacket> dyPacket = mplayerSource->ReadPacket();
+    shared_ptr<MyAVPacket> dyPacket = this->ReadPacket();
     if (NULL == dyPacket.get()) {
         if (mretryCount > FRAME_RETRY_COUNT) {
             LOG(LOG_LEVEL_E, "Player %s retry %d times, reopen",
@@ -243,16 +240,6 @@ int Player::OnFrame()
             LOG(LOG_LEVEL_D, "Cannot fill packet");
 
     mretryCount = 0; // reset retry count
-    // report
-    int readFrameTime = anal.Analysis();
-    mtotalReadCount++;
-    mtotalReadTime += readFrameTime;
-    if (readFrameTime > mmaxReadTime)
-        mmaxReadTime = readFrameTime;
-    if (readFrameTime > 40)
-        mexceedReadCount++;
-#endif
-
     return 0;
 }
 
@@ -281,6 +268,23 @@ shared_ptr<Stream> Player::OpenStream(int streamType, int index)
 	}
 
 	return pStream;
+}
+
+shared_ptr<MyAVPacket> Player::ReadPacket()
+{
+	// record local time for interrupt
+	mInterruptAnlaysiser.Analysis();
+
+	shared_ptr<MyAVPacket> dyPacket;
+	AVPacket packet;
+	int res = av_read_frame(mpFormatContext, &packet);
+	if (res < 0) {
+		mInterruptAnlaysiser.Analysis(); // reset interrupt time
+		return dyPacket;
+	}
+
+	dyPacket = shared_ptr<MyAVPacket>(new MyAVPacket(&packet));
+	return dyPacket;
 }
 
 int Player::OnInterrupt()

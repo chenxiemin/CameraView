@@ -41,6 +41,7 @@ extern "C" __declspec(dllexport) void __stdcall SdlClose()
 {
 	SDL_Quit();
 
+	sdl->Close();
 	sdl.reset();
 	LOGD("Exit sdl");
 }

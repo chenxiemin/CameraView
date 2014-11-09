@@ -1,8 +1,11 @@
+#include <chrono>
+
 #include "multi-player.h"
 #include "scaler.h"
 #include "stream.h"
 
 using namespace std;
+using namespace std::chrono;
 using namespace cxm::sdl;
 
 namespace cxm {
@@ -25,6 +28,7 @@ void MultiPlayer::Close()
 
 int MultiPlayer::OnShowFrame()
 {
+#if 0
 	AVPacket packet;
 	int frameFinished = 0;
 	while (av_read_frame(pFormatCtx, &packet) >= 0) {
@@ -44,6 +48,16 @@ int MultiPlayer::OnShowFrame()
 
 		break;
 	}
+#endif
+
+	shared_ptr<MyAVFrame> frame = this->mqueue.Get(0, milliseconds(100));
+	if (NULL == frame.get())
+		return 0;
+
+	
+	shared_ptr<MyAVPicture> picture(new MyAVPicture(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height));
+	scaler->Scale(frame, picture);
+	this->ShowFrame(picture);
 
 	return 0;
 }
@@ -73,10 +87,26 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 			pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, SWS_BILINEAR, NULL, NULL, NULL);
 		this->AddTimer(0, this, NULL);
 		break;
+	} case CXM_PLAYER_EVENT_STREAM_OPENED: {
+		assert(NULL != eventArgs);
+		Stream *pstream = (Stream *)eventArgs;
+		pstream->SetStreamNotify(this, NULL);
+		break;
 	} default:
 		break;
 	}
 	return 0;
+}
+
+void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
+                    shared_ptr<MyAVFrame> frame)
+{
+	/*
+	shared_ptr<MyAVPicture> picture(new MyAVPicture(pCodecCtx->pix_fmt, pCodecCtx->width, pCodecCtx->height));
+	scaler->Scale(frame, picture);
+	this->ShowFrame(picture);
+	*/
+	this->mqueue.Put(frame);
 }
 
 }

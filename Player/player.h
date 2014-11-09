@@ -47,6 +47,7 @@ class Player : public cxm::util::IRunnable
 		 PLAYER_EVENT_REOPEN
 	};
 	private: static const int INTERRUPT_TIME = 5000; // 5000ms for open
+	private: static const int FRAME_RETRY_COUNT = 3; // retry times 
 
 	private: std::string mUrl;
 	private: std::string mOption;
@@ -56,6 +57,7 @@ class Player : public cxm::util::IRunnable
 	private: std::shared_ptr<cxm::util::Thread> mThread;
 	private: volatile CXM_PLAYER_STATUS mStatus;
 	private: cxm::alg::SafeQueue<PlayerEvent> meventQueue;
+	private: int mretryCount; // count for frame failed
 
 	private: IPlayerProcdule *mpPlayerProcdule;
 	private: void *mpProcduleTag;
@@ -81,6 +83,7 @@ class Player : public cxm::util::IRunnable
 	protected: void OnClose();
 	protected: int OnFrame();
 
+	private: std::shared_ptr<MyAVPacket> ReadPacket();
 	private: int OnInterrupt();
 	private: static int InterruptCallback(void *arg);
 };

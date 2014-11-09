@@ -1,10 +1,12 @@
 #include <string>
+#include <chrono>
 
 #include "stream.h"
 #include "player.h"
 #include "thread.h"
 
 using namespace std;
+using namespace std::chrono;
 using namespace cxm::util;
 
 namespace cxm {
@@ -57,12 +59,10 @@ int Stream::Open()
 			break;
 		}
 
-		/*
 		// open decode thread
 		this->needContinue = true;
 		this->mThread = shared_ptr<Thread>(new Thread(this));
 		this->mThread->Start();
-		*/
 		return 0;
 	} while (0);
 
@@ -82,14 +82,55 @@ void Stream::Close()
 		avcodec_close(this->mpCodecContext);
 }
 
+void Stream::Run()
+{
+	LOG(LOG_LEVEL_D, "On stream thread run");
+
+	while (this->needContinue) {
+		shared_ptr<MyAVPacket> packet = mpktQueue.Get();
+		if (NULL == packet.get())
+			continue;
+
+		AVPacket *ppacket = &packet->GetPacket();
+
+		shared_ptr<MyAVFrame> frame(new MyAVFrame());
+		AVFrame *pframe = &frame->GetAVFrame();
+		int frameFinished = 0;
+
+		uint64_t beforeDecodeTick = Analysiser::GetTick();
+		Analysiser anl;
+		// decode
+		avcodec_decode_video2(this->mpCodecContext, pframe,
+			&frameFinished, ppacket);
+		if (frameFinished <= 0)
+			continue;
+
+		// copy data
+		frame->UpdateData();
+
+		// TODO set play time
+#if 0
+		system_clock::time_point playTime = system_clock::now() +
+			milliseconds(ppacket->rtsp_sync_clock - Analysiser::GetTick());
+		frame->SetPlayTime(playTime);
+#endif
+
+		// notify
+		if (NULL != this->mpStreamNotify)
+			this->mpStreamNotify->OnFrame(*this, this->mpStreamNotifyTag,
+			packet->GetPacket(), frame);
+	}
+}
+
 void Stream::Flush()
 {
 
 }
 
-void Stream::Run()
-{
+int Stream::FillPacket(shared_ptr<MyAVPacket> packet) {
+	mpktQueue.Put(packet);
 
+	return 0;
 }
 
 }

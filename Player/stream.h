@@ -38,6 +38,13 @@ class Stream : public cxm::util::IRunnable
 	public: int Open();
 	public: void Close();
 	public: void Flush();
+	public: int FillPacket(std::shared_ptr<MyAVPacket> packet);
+
+    public: void SetStreamNotify(IStreamNotify *notify, void *notifyTag)
+    {
+        this->mpStreamNotify = notify;
+        this->mpStreamNotifyTag = notifyTag;
+    }
 	public: AVCodecContext *GetContext() { return mpCodecContext; }
 
 	private: virtual void Run();
