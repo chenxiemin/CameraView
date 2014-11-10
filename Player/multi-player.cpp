@@ -1,4 +1,5 @@
 #include <chrono>
+#include <map>
 
 #include "multi-player.h"
 #include "scaler.h"
@@ -13,29 +14,50 @@ namespace av {
 
 int MultiPlayer::Play(const string &url)
 {
-	if (NULL != mplayer.get())
-		return -1;
-	mplayer = shared_ptr<Player>(new Player());
-	mplayer->SetPlayerProcdule(this, NULL);
-	mplayer->Open(url, "");
+	vector<string> urls;
+	Split(url, ' ', urls);
+
+	for (auto iter = urls.begin(); iter != urls.end(); iter++) {
+		shared_ptr<OnePlayer> onePlayer(new OnePlayer());
+		
+		shared_ptr<Player> player = shared_ptr<Player>(new Player());
+		player->SetPlayerProcdule(this, onePlayer.get());
+		player->Open(*iter, "");
+
+		onePlayer->mplayer = player;
+		onePlayer->mid = mopenCount++;
+		this->mplayerList.push_back(onePlayer);
+	}
+
 	return 0;
 }
 
 void MultiPlayer::Close()
 {
-	mplayer->Close();
+	for (auto iter = this->mplayerList.begin();
+		iter != mplayerList.end(); iter++)
+			(*iter)->mplayer->Close();
 }
 
 void MultiPlayer::OnTimer(void *opaque)
 {
 	this->AddTimer(0, this, NULL); // poll
 	
+	shared_ptr<OnePlayer> onePlayer = this->mplayerList.back();
+
 	// boocked get frame within 100ms
-	shared_ptr<MyAVFrame> frame = this->mqueue.Get(0, milliseconds(100));
+	shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(100));
 	if (NULL == frame.get())
 		return;
 	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
-	scaler->Scale(frame, picture);
+#if 0
+	onePlayer->mscaler->Scale(frame, picture);
+#else
+	map<int, shared_ptr<MyAVFrame>> framesMap;
+	framesMap[0] = frame;
+	mmerger.Merge(framesMap, picture);
+#endif
+
 	this->ShowFrame(picture);
 }
 
@@ -47,15 +69,18 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 	switch (event)
 	{
 	case CXM_PLAYER_EVENT_OPENED: {
-		// create scaler
-		shared_ptr<Stream> stream = mplayer->GetStream(0);
-		scaler = Scaler::CreateScaler(stream, GetWidth(), GetHeight());
+
 		this->AddTimer(0, this, NULL);
 		break;
 	} case CXM_PLAYER_EVENT_STREAM_OPENED: {
 		assert(NULL != eventArgs);
+		// create scaler
+		OnePlayer *onePlayer = (OnePlayer *)procduleTag;
+		assert(NULL != onePlayer);
+
 		Stream *pstream = (Stream *)eventArgs;
-		pstream->SetStreamNotify(this, NULL);
+		onePlayer->mscaler = Scaler::CreateScaler(pstream, GetWidth(), GetHeight());
+		pstream->SetStreamNotify(this, onePlayer);
 		break;
 	} default:
 		break;
@@ -66,7 +91,28 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
                     shared_ptr<MyAVFrame> frame)
 {
-	this->mqueue.Put(frame);
+	assert(NULL != tag);
+
+	OnePlayer *onePlayer = (OnePlayer *)tag;
+	onePlayer->mqueue.Put(frame);
+}
+
+void MultiPlayer::Split(const string &str, char spliter,
+	vector<string> &container)
+{
+	container.clear();
+
+	size_t offsetStart = 0;
+	size_t offsetEnd = 0;
+	while (string::npos != (offsetEnd = str.find(spliter, offsetStart))) {
+		string sub = str.substr(offsetStart, offsetEnd);
+		if (sub.length() > 0)
+			container.push_back(sub);
+		offsetStart = offsetEnd + 1;
+	}
+	string sub = str.substr(offsetStart, offsetEnd);
+	if (sub.length() > 0)
+		container.push_back(sub);
 }
 
 }

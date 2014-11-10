@@ -12,7 +12,9 @@ using namespace std;
 using namespace cxm::av;
 using namespace cxm::sdl;
 
-const char *url = "rtsp://192.168.0.130/12";
+// const char *url = "rtsp://192.168.0.130/12";
+// const char *url = "rtsp://127.0.0.1/test.264 rtsp://127.0.0.1/test10.264";
+const char *url = "rtsp://192.168.0.10/live";
 shared_ptr<MultiPlayer> sdl;
 
 int SDL_main(HWND handle, const RECT &rc)

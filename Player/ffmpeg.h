@@ -60,13 +60,21 @@ class MyAVPicture : MyAVObject
 {
 	private: AVPicture mpicture;
     private: uint8_t *mpbuffer;
+	private: int mwidth;
+	private: int mheight;
+	private: AVPixelFormat mformat;
+	private: int mbufferSize;
 
     public: MyAVPicture(enum AVPixelFormat pix_fmt, int width, int height)
     {
-        mpbuffer = (uint8_t *)av_malloc(avpicture_get_size(
-                    pix_fmt, width, height));
+		mbufferSize = avpicture_get_size(pix_fmt, width, height);
+        mpbuffer = (uint8_t *)av_malloc(mbufferSize);
         assert(NULL != mpbuffer);
+
         avpicture_fill(&mpicture, mpbuffer, pix_fmt, width, height);
+		mformat = pix_fmt;
+		mwidth = width;
+		mheight = height;
     }
     public: ~MyAVPicture()
     {
@@ -74,6 +82,9 @@ class MyAVPicture : MyAVObject
     }
 
     public: AVPicture &GetPicture() { return mpicture; }
+	public: int GetWidth() { return mwidth; }
+	public: int GetHeight() { return mheight; }
+	public: int GetBufferSize() { return mbufferSize; }
 };
 
 class MyAVPacket : public MyAVObject

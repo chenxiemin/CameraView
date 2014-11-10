@@ -33,15 +33,15 @@
 
 #define LOGI(...) LOG(LOG_LEVEL_I, __VA_ARGS__)
 
-#define __DY_FILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define __MY_FILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #ifdef __ANDROID__
 #include <android/log.h>
 #define LOG(level, x...) do { if (LOG_LEVEL_V == level) break; \
 	char buf[512]; \
 	sprintf(buf, x); \
-	__android_log_print(ANDROID_LOG_ERROR, "DY_LOG_TAG", \
-	"%s | %s:%i", buf, __DY_FILE__, __LINE__); \
+	__android_log_print(ANDROID_LOG_ERROR, "MY_LOG_TAG", \
+	"%s | %s:%i", buf, __MY_FILE__, __LINE__); \
 } while (0)
 #elif defined(_WIN32)
 #include <iostream>
@@ -54,7 +54,7 @@
 #else
 #define LOG(level, ...) do { if (LOG_LEVEL_V == level) break; \
 	fprintf(stderr, __VA_ARGS__); \
-	fprintf(stderr, " | %s %d", __DY_FILE__, __LINE__); \
+	fprintf(stderr, " | %s %d", __MY_FILE__, __LINE__); \
 	fprintf(stderr, "\n"); fflush(stderr);
 } \
 while (0)

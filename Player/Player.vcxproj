@@ -101,6 +101,7 @@ if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\swscale-2.dll co
     <ClInclude Include="analysiser.h" />
     <ClInclude Include="ffmpeg-inc.h" />
     <ClInclude Include="ffmpeg.h" />
+    <ClInclude Include="image-merger.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="multi-player.h" />

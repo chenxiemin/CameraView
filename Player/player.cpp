@@ -13,10 +13,12 @@ namespace av {
 Player::Player()
 {
 	av_register_all();
+	avformat_network_init();
 }
 
 Player::~Player()
 {
+	Close();
 }
 
 int Player::Open(const string &url, const string &option)
@@ -139,7 +141,7 @@ int Player::OnOpen()
 		AVDictionary *options = 0;
 		av_dict_set(&options, "rtsp_transport", "tcp", 0);
 		// av_dict_set(&options, "rtsp_transport", "udp", 0);
-		av_dict_set(&options, "probesize", "10000", 0); // to fix video not sync problem
+		av_dict_set(&options, "probesize", "50000", 0); // to fix video not sync problem
 		// av_dict_set(&options, "fflags", "nobuffer", 0);
 		// av_dict_set(&options, "analyzeduration", "50", 0);
 		// av_dict_set(&options, "max_delay", "5", 0);
@@ -218,8 +220,8 @@ int Player::OnFrame()
 {
     // read frame
     Analysiser anal;
-    shared_ptr<MyAVPacket> dyPacket = this->ReadPacket();
-    if (NULL == dyPacket.get()) {
+    shared_ptr<MyAVPacket> myPacket = this->ReadPacket();
+    if (NULL == myPacket.get()) {
         if (mretryCount > FRAME_RETRY_COUNT) {
             LOG(LOG_LEVEL_E, "Player %s retry %d times, reopen",
                     mUrl.c_str(), mretryCount);
@@ -232,11 +234,11 @@ int Player::OnFrame()
     }
 
     // get stream
-    AVPacket &packet = dyPacket->GetPacket();
+    AVPacket &packet = myPacket->GetPacket();
     shared_ptr<Stream> pStream = this->mStreamList[packet.stream_index];
     if (NULL != pStream)
         // set packet
-        if (0 != pStream->FillPacket(dyPacket))
+        if (0 != pStream->FillPacket(myPacket))
             LOG(LOG_LEVEL_D, "Cannot fill packet");
 
     mretryCount = 0; // reset retry count
@@ -275,16 +277,16 @@ shared_ptr<MyAVPacket> Player::ReadPacket()
 	// record local time for interrupt
 	mInterruptAnlaysiser.Analysis();
 
-	shared_ptr<MyAVPacket> dyPacket;
+	shared_ptr<MyAVPacket> myPacket;
 	AVPacket packet;
 	int res = av_read_frame(mpFormatContext, &packet);
 	if (res < 0) {
 		mInterruptAnlaysiser.Analysis(); // reset interrupt time
-		return dyPacket;
+		return myPacket;
 	}
 
-	dyPacket = shared_ptr<MyAVPacket>(new MyAVPacket(&packet));
-	return dyPacket;
+	myPacket = shared_ptr<MyAVPacket>(new MyAVPacket(&packet));
+	return myPacket;
 }
 
 int Player::OnInterrupt()

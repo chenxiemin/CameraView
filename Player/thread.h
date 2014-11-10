@@ -55,7 +55,7 @@ class Thread
 		this->mRunnable = runnable;
 	}
 
-	public: ~Thread()
+	public: virtual ~Thread()
 	{
 		if (this->isFinish)
 			return;
@@ -78,9 +78,11 @@ class Thread
 
 	public: void Join()
 	{
-		LOGD("Before join thread: %s", mname.c_str());
-		this->mThread.join();
-		LOGD("After join thread: %s", mname.c_str());
+		if (mThread.joinable()) {
+			LOGD("Before join thread: %s", mname.c_str());
+			this->mThread.join();
+			LOGD("After join thread: %s", mname.c_str());
+		}
 	}
 
 	private: static void ThreadHock(void *thiz)

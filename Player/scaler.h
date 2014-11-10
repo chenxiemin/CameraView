@@ -58,6 +58,12 @@ class Scaler {
 	public: static std::shared_ptr<Scaler> CreateScaler(
 		std::shared_ptr<Stream> srcStream, int dstW, int dstH)
     {
+		return CreateScaler(srcStream.get(), dstW, dstH);
+    }
+
+	public: static std::shared_ptr<Scaler> CreateScaler(
+		Stream *srcStream, int dstW, int dstH)
+    {
 		AVCodecContext *pCodecCtx = srcStream->GetContext();
 
 		return CreateScaler(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt,
