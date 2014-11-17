@@ -30,7 +30,7 @@ int Player::Open(const string &url, const string &option)
 
 	this->mUrl = url;
 	this->mOption = option;
-	this->mThread = shared_ptr<Thread>(new Thread(this));
+	this->mThread = shared_ptr<Thread>(new Thread(this, "player"));
 	this->mThread->Start();
 
 	// put start event
@@ -291,6 +291,8 @@ shared_ptr<MyAVPacket> Player::ReadPacket()
 
 void Player::SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag)
 {
+    lock_guard<mutex> lock(mprocduleMutex); // lock first
+
 	for (auto iter = mprocduleList.begin(); iter != mprocduleList.end(); iter++) {
 		if ((*iter)->mpprocdule == procdule) {
 			LOGE("Procdule already exist");
@@ -304,8 +306,20 @@ void Player::SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag)
 	mprocduleList.push_back(procduleStruct);
 }
 
+void Player::RemovePlayerProcdule(IPlayerProcdule *procdule)
+{
+    lock_guard<mutex> lock(mprocduleMutex); // lock first
+
+	for (auto iter = mprocduleList.begin(); iter != mprocduleList.end(); iter++)
+		if ((*iter)->mpprocdule == procdule) {
+			mprocduleList.erase(iter);
+			return;
+		}
+}
+
 void Player::FireNotify(CXM_PLAYER_EVENT event, shared_ptr<object> args)
 {
+    lock_guard<mutex> lock(mprocduleMutex); // lock first
 	// copy list
 	list< shared_ptr<ProcduleStruct> > copyList;
 	std::copy(mprocduleList.begin(), mprocduleList.end(), std::back_inserter(copyList));

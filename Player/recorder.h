@@ -8,6 +8,7 @@
 #include "thread.h"
 #include "player.h"
 #include "common.h"
+#include "safe-queue.h"
 
 namespace cxm {
 namespace av {
@@ -18,6 +19,8 @@ class Recorder : public cxm::util::IRunnable, IPlayerProcdule {
 	private: std::shared_ptr<Player> mplayer;
 	private: AVFormatContext *mcontext;
 	private: std::shared_ptr<cxm::util::Thread> mthread;
+	private: cxm::alg::SafeQueue<MyAVPacket> msafeQueue;
+	private: bool misRun;
 
 	public: Recorder(std::shared_ptr<Player> player);
 	public: ~Recorder();

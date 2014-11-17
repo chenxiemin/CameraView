@@ -3,6 +3,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 
 #include "analysiser.h"
 #include "thread.h"
@@ -66,6 +67,7 @@ class Player : public cxm::util::IRunnable
 	private: cxm::alg::SafeQueue<PlayerEvent> meventQueue;
 	private: int mretryCount; // count for frame failed
 	private: std::list<std::shared_ptr<ProcduleStruct>> mprocduleList;
+	private: std::mutex mprocduleMutex;
 
 	// private: IPlayerProcdule *mpPlayerProcdule;
 	// private: void *mpProcduleTag;
@@ -77,6 +79,7 @@ class Player : public cxm::util::IRunnable
 	public: void Close();
 
 	public: void SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag);
+	public: void RemovePlayerProcdule(IPlayerProcdule *procdule);
 	// {
 	// 	this->mpPlayerProcdule = procdule;
 	// 	this->mpProcduleTag = procTag;

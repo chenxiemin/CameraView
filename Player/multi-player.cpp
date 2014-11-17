@@ -37,9 +37,15 @@ int MultiPlayer::Play(const string &url)
 
 void MultiPlayer::Close()
 {
+	// close recording
+	for (auto iter = mrecorderList.begin(); iter != mrecorderList.end(); iter++)
+		(*iter)->Stop();
+	mrecorderList.clear();
+	// close player
 	for (auto iter = this->mplayerList.begin();
 		iter != mplayerList.end(); iter++)
 			(*iter)->mplayer->Close();
+	mplayerList.clear();
 }
 
 int MultiPlayer::Record(const std::string &fileName, int channel, int time)
@@ -64,7 +70,7 @@ int MultiPlayer::Record(const std::string &fileName, int channel, int time)
 	// start record TODO fix hard code
 	shared_ptr<Recorder> recorder(new Recorder(onePlayer->mplayer));
 	mrecorderList.push_back(recorder);
-	return recorder->Start("test.avi", 10);
+	return recorder->Start("test.mp4", 10);
 }
 
 void MultiPlayer::OnKeyDown(const SDL_Event &event)

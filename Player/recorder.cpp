@@ -10,7 +10,8 @@ using namespace cxm::util;
 namespace cxm {
 namespace av {
 
-Recorder::Recorder(shared_ptr<Player> player) : mplayer(player), mcontext(NULL)
+Recorder::Recorder(shared_ptr<Player> player) :
+	mplayer(player), mcontext(NULL), misRun(false)
 {
 }
 
@@ -86,6 +87,9 @@ int Recorder::Start(const string &fileName, int recordTime)
 		// register notify
 		mplayer->SetPlayerProcdule(this, NULL);
 		// start thread
+		misRun = true;
+		mthread = shared_ptr<Thread>(new Thread(this, "recorder"));
+		mthread->Start();
 
 		return 0;
 	} while (0);
@@ -99,6 +103,17 @@ void Recorder::Stop()
 	if (NULL == mcontext)
 		return;
 
+	// unregist notify
+	mplayer->RemovePlayerProcdule(this);
+
+	// stop thread
+	if (NULL != mthread.get()) {
+		misRun = false;
+		msafeQueue.NotifyAll();
+		mthread->Join();
+		mthread.reset();
+	}
+
 	int res = av_write_trailer(mcontext);
 	if (0 != res)
 		LOGE("Cannot write trailer: %d", res);
@@ -111,6 +126,44 @@ void Recorder::Stop()
 
 void Recorder::Run()
 {
+	AVStream *pstream = mplayer->GetStream(0)->GetStream();
+	int res = 0;
+	int pts = 0;
+
+	while (misRun) {
+		shared_ptr<MyAVPacket> packet = msafeQueue.Get();
+		if (!misRun)
+			return; // double check cause safe queue blocked
+
+		AVPacket &pkt = packet->GetPacket();
+		LOGE("Packet flag: %d", pkt.flags);
+		if (pts == 0 && !(pkt.flags & AV_PKT_FLAG_KEY)) {
+			LOGE("Skip frame before key");
+			continue;
+		}
+
+		AVPacket pkt2;
+		av_init_packet(&pkt2);
+		pkt2.stream_index = 0;
+		// uint8_t *data = new uint8_t[pkt.size];
+		// memcpy(data, pkt.data, pkt.size);
+		pkt2.data = pkt.data;
+		pkt2.size = pkt.size;
+		// pkt2.flags = pkt.flags;
+		pkt2.pts = pkt2.dts = pts;
+		pts += 300;
+		
+		// pkt2.pts = av_rescale_q(pkt.pts, pstream->codec->time_base, mcontext->streams[0]->time_base);
+		// pkt2.dts = av_rescale_q(pkt.dts, pstream->codec->time_base, mcontext->streams[0]->time_base);
+		// pkt.pts = av_rescale_q(pkt.pts, pstream->codec->time_base, mcontext->streams[0]->time_base);
+		// pkt.dts = av_rescale_q(pkt.dts, pstream->codec->time_base, mcontext->streams[0]->time_base);
+
+		res = av_interleaved_write_frame(mcontext, &pkt2);
+		// delete []data;
+		// av_free_packet(&pkt2);
+		if (0 != res)
+			LOGE("Cannot write frame: %d", res);
+	}
 }
 	
 int Recorder::OnPlayerProcdule(Player &player, void *procduleTag,
@@ -118,7 +171,13 @@ int Recorder::OnPlayerProcdule(Player &player, void *procduleTag,
 {
 	switch (event) {
 	case CXM_PLAYER_EVENT_GET_PACKET:
-		LOGD("Get packet %p", args.get());
+		shared_ptr<MyAVPacket> packet = dynamic_pointer_cast<MyAVPacket>(args);
+		if (NULL == packet.get()) {
+			LOGE("Cannot convert packet");
+			break;
+		}
+
+		msafeQueue.Put(packet);
 		break;
 	}
 	return 0;

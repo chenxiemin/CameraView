@@ -61,7 +61,7 @@ int Stream::Open()
 
 		// open decode thread
 		this->needContinue = true;
-		this->mThread = shared_ptr<Thread>(new Thread(this));
+		this->mThread = shared_ptr<Thread>(new Thread(this, "stream"));
 		this->mThread->Start();
 		return 0;
 	} while (0);
