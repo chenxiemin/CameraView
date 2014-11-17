@@ -4,10 +4,13 @@
 #include "multi-player.h"
 #include "scaler.h"
 #include "stream.h"
+#include "recorder.h"
+#include "string-util.h"
 
 using namespace std;
 using namespace std::chrono;
 using namespace cxm::sdl;
+using namespace cxm::util;
 
 namespace cxm {
 namespace av {
@@ -15,7 +18,7 @@ namespace av {
 int MultiPlayer::Play(const string &url)
 {
 	vector<string> urls;
-	Split(url, ' ', urls);
+	StringUtil::Split(url, ' ', urls);
 
 	for (auto iter = urls.begin(); iter != urls.end(); iter++) {
 		shared_ptr<OnePlayer> onePlayer(new OnePlayer());
@@ -39,12 +42,77 @@ void MultiPlayer::Close()
 			(*iter)->mplayer->Close();
 }
 
+int MultiPlayer::Record(const std::string &fileName, int channel, int time)
+{
+	LOGD("Record with name %s channel %d time %d", fileName.c_str(), channel, time);
+	if (fileName.length() == 0 || channel < 0 ||
+		channel >= (int)mplayerList.size() || time < 0) {
+		LOGE("Record: Illegal argument");
+		return -1;
+	}
+
+	// find player
+	shared_ptr<OnePlayer> onePlayer;
+	for (auto iter = this->mplayerList.begin(); iter != mplayerList.end(); iter++)
+		if ((*iter)->mid == channel)
+			onePlayer = *iter;
+	if (NULL == onePlayer.get()) {
+		LOGE("Cannot find player by id: %d", channel);
+		return -1;
+	}
+
+	// start record TODO fix hard code
+	shared_ptr<Recorder> recorder(new Recorder(onePlayer->mplayer));
+	mrecorderList.push_back(recorder);
+	return recorder->Start("test.avi", 10);
+}
+
+void MultiPlayer::OnKeyDown(const SDL_Event &event)
+{
+	LOGD("On key down: %d", event.key.keysym.sym);
+	static bool isInRecording = false;
+	static int recordChannel = -1;
+
+	switch (event.key.keysym.sym) {
+	case SDLK_r: {
+		if (isInRecording) {
+			if (-1 != recordChannel) {
+				 int res = Record("test", recordChannel, 10);
+				 if (0 != res)
+					 LOGE("Cannot record: %d", res);
+			}
+		}
+		recordChannel = -1;
+		isInRecording = !isInRecording;
+		break;
+	}
+	case SDLK_0:
+	case SDLK_1:
+	case SDLK_2:
+	case SDLK_3:
+	case SDLK_4:
+	case SDLK_5:
+	case SDLK_6:
+	case SDLK_7:
+	case SDLK_8:
+	case SDLK_9: {
+		 if (isInRecording) {
+			 if (-1 == recordChannel)
+				 recordChannel = event.key.keysym.sym - SDLK_0;
+			 else
+				 recordChannel = recordChannel * 10 +
+					 event.key.keysym.sym - SDLK_0;
+		 }
+		 break;
+	}
+	}
+}
+
 void MultiPlayer::OnTimer(void *opaque)
 {
 	this->AddTimer(0, this, NULL); // poll
 	
 	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
-#if 1
 	map<int, shared_ptr<MyAVFrame>> framesMap;
 	for (auto iter = mplayerList.begin(); iter != mplayerList.end(); iter++) {
 		shared_ptr<OnePlayer> onePlayer = *iter;
@@ -56,29 +124,14 @@ void MultiPlayer::OnTimer(void *opaque)
 		framesMap[onePlayer->mid] = frame;
 	}
 	mmerger.Merge(framesMap, picture);
-#elif 0
-	shared_ptr<OnePlayer> onePlayer = this->mplayerList.back();
-
-	// boocked get frame within 100ms
-	shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(100));
-	if (NULL == frame.get())
-		return;
-	map<int, shared_ptr<MyAVFrame>> framesMap;
-	framesMap[0] = frame;
-	mmerger.Merge(framesMap, picture);
-#else
-	shared_ptr<OnePlayer> onePlayer = this->mplayerList.back();
-	onePlayer->mscaler->Scale(frame, picture);
-#endif
 
 	this->ShowFrame(picture);
 }
 
 int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
-	CXM_PLAYER_EVENT event, void *eventArgs)
+	CXM_PLAYER_EVENT event, shared_ptr<object> args)
 {
-	LOGD("In function %s: with player event %d", __FUNCTION__, event);
-
+	// LOGD("In function %s: with player event %d", __FUNCTION__, event);
 	switch (event)
 	{
 	case CXM_PLAYER_EVENT_OPENED: {
@@ -86,12 +139,12 @@ int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
 		this->AddTimer(0, this, NULL);
 		break;
 	} case CXM_PLAYER_EVENT_STREAM_OPENED: {
-		assert(NULL != eventArgs);
+		assert(NULL != args.get());
 		// create scaler
 		OnePlayer *onePlayer = (OnePlayer *)procduleTag;
 		assert(NULL != onePlayer);
 
-		Stream *pstream = (Stream *)eventArgs;
+		Stream *pstream = (Stream *)args.get();
 		onePlayer->mscaler = Scaler::CreateScaler(pstream, GetWidth(), GetHeight());
 		pstream->SetStreamNotify(this, onePlayer);
 		break;
@@ -108,24 +161,6 @@ void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
 
 	OnePlayer *onePlayer = (OnePlayer *)tag;
 	onePlayer->mqueue.Put(frame);
-}
-
-void MultiPlayer::Split(const string &str, char spliter,
-	vector<string> &container)
-{
-	container.clear();
-
-	size_t offsetStart = 0;
-	size_t offsetEnd = 0;
-	while (string::npos != (offsetEnd = str.find(spliter, offsetStart))) {
-		string sub = str.substr(offsetStart, offsetEnd);
-		if (sub.length() > 0)
-			container.push_back(sub);
-		offsetStart = offsetEnd + 1;
-	}
-	string sub = str.substr(offsetStart, offsetEnd);
-	if (sub.length() > 0)
-		container.push_back(sub);
 }
 
 }

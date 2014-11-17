@@ -28,12 +28,13 @@ enum CXM_PLAYER_EVENT {
 	CXM_PLAYER_EVENT_OPENED,
 	CXM_PLAYER_EVENT_STREAM_OPENED,
 	CXM_PLAYER_EVENT_STREAM_ERROR,
-	CXM_PLAYER_EVENT_STREAM_END
+	CXM_PLAYER_EVENT_STREAM_END,
+	CXM_PLAYER_EVENT_GET_PACKET
 };
 
 class IPlayerProcdule {
 	public: virtual int OnPlayerProcdule(Player &player, void *procduleTag,
-			CXM_PLAYER_EVENT event, void *eventArgs) = 0;
+			CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args) = 0;
 
 	public: virtual ~IPlayerProcdule() { }
 };
@@ -46,6 +47,12 @@ class Player : public cxm::util::IRunnable
 		 PLAYER_EVENT_READ_FRAME,
 		 PLAYER_EVENT_REOPEN
 	};
+
+	private: struct ProcduleStruct {
+		IPlayerProcdule *mpprocdule;
+		void *mptag;
+	};
+
 	private: static const int INTERRUPT_TIME = 5000; // 5000ms for open
 	private: static const int FRAME_RETRY_COUNT = 3; // retry times 
 
@@ -58,9 +65,10 @@ class Player : public cxm::util::IRunnable
 	private: volatile CXM_PLAYER_STATUS mStatus;
 	private: cxm::alg::SafeQueue<PlayerEvent> meventQueue;
 	private: int mretryCount; // count for frame failed
+	private: std::list<std::shared_ptr<ProcduleStruct>> mprocduleList;
 
-	private: IPlayerProcdule *mpPlayerProcdule;
-	private: void *mpProcduleTag;
+	// private: IPlayerProcdule *mpPlayerProcdule;
+	// private: void *mpProcduleTag;
 
 	public: Player();
 	public: virtual ~Player();
@@ -68,14 +76,15 @@ class Player : public cxm::util::IRunnable
 	public: int Open(const std::string &url, const std::string &option);
 	public: void Close();
 
-	public: void SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag)
-	{
-		this->mpPlayerProcdule = procdule;
-		this->mpProcduleTag = procTag;
-	}
+	public: void SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag);
+	// {
+	// 	this->mpPlayerProcdule = procdule;
+	// 	this->mpProcduleTag = procTag;
+	// }
 	public: AVFormatContext *GetContext() { return mpFormatContext; }
 	public: const std::string &GetURL() { return mUrl; }
 	public: std::shared_ptr<Stream> GetStream(int index) { return mStreamList[index]; }
+	public: int GetStreamSize() { return mStreamList.size(); }
 
 	private: std::shared_ptr<Stream> OpenStream(int type, int index);
 	private: virtual void Run();
@@ -83,6 +92,7 @@ class Player : public cxm::util::IRunnable
 	protected: void OnClose();
 	protected: int OnFrame();
 
+	private: void FireNotify(CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args);
 	private: std::shared_ptr<MyAVPacket> ReadPacket();
 	private: int OnInterrupt();
 	private: static int InterruptCallback(void *arg);

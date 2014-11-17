@@ -2,6 +2,7 @@
 #define _CXM_STREAM_H_
 
 #include "ffmpeg.h"
+#include "common.h"
 #include "safe-queue.h"
 #include "thread.h"
 
@@ -18,7 +19,7 @@ class IStreamNotify
 		std::shared_ptr<MyAVFrame> frame) = 0;
 };
 
-class Stream : public cxm::util::IRunnable
+class Stream : public cxm::util::object, cxm::util::IRunnable
 {
 	private: int mStreamIndex; // current stream relate
 	protected: Player &mPlayer;
@@ -46,6 +47,7 @@ class Stream : public cxm::util::IRunnable
         this->mpStreamNotifyTag = notifyTag;
     }
 	public: AVCodecContext *GetContext() { return mpCodecContext; }
+	public: AVStream *GetStream() { return mpStream; }
 
 	private: virtual void Run();
 };

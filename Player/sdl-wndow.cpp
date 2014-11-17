@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <vld.h>
 
 #include "mysdl.h"
 #include "log.h"

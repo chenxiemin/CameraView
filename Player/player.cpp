@@ -179,18 +179,15 @@ int Player::OnOpen()
         // append stream
         this->mStreamList[0] = pStream;
         // fire stream notify
-        if (NULL != this->mpPlayerProcdule)
-            this->mpPlayerProcdule->OnPlayerProcdule(*this, this->mpProcduleTag,
-                    CXM_PLAYER_EVENT_STREAM_OPENED, pStream.get());
+		FireNotify(CXM_PLAYER_EVENT_STREAM_OPENED, pStream);
+		
         // flush cache
         pStream->Flush();
 
         // save status
 		this->mStatus = CXM_PLAYER_PLAY;
         // fire opened
-        if (NULL != this->mpPlayerProcdule)
-            this->mpPlayerProcdule->OnPlayerProcdule(*this, this->mpProcduleTag,
-                    CXM_PLAYER_EVENT_OPENED, NULL);
+		FireNotify(CXM_PLAYER_EVENT_OPENED, NULL);
 
         LOG(LOG_LEVEL_D, "open url success: %s", this->mUrl.c_str());
         return 0;
@@ -232,6 +229,9 @@ int Player::OnFrame()
         LOG(LOG_LEVEL_W, "Retry for RTSP stream at %d time", mretryCount++);
         return 0;
     }
+
+	// fire notify
+	FireNotify(CXM_PLAYER_EVENT_GET_PACKET, myPacket);
 
     // get stream
     AVPacket &packet = myPacket->GetPacket();
@@ -287,6 +287,34 @@ shared_ptr<MyAVPacket> Player::ReadPacket()
 
 	myPacket = shared_ptr<MyAVPacket>(new MyAVPacket(&packet));
 	return myPacket;
+}
+
+void Player::SetPlayerProcdule(IPlayerProcdule *procdule, void *procTag)
+{
+	for (auto iter = mprocduleList.begin(); iter != mprocduleList.end(); iter++) {
+		if ((*iter)->mpprocdule == procdule) {
+			LOGE("Procdule already exist");
+			return;
+		}
+	}
+
+	shared_ptr<ProcduleStruct> procduleStruct(new ProcduleStruct());
+	procduleStruct->mpprocdule = procdule;
+	procduleStruct->mptag = procTag;
+	mprocduleList.push_back(procduleStruct);
+}
+
+void Player::FireNotify(CXM_PLAYER_EVENT event, shared_ptr<object> args)
+{
+	// copy list
+	list< shared_ptr<ProcduleStruct> > copyList;
+	std::copy(mprocduleList.begin(), mprocduleList.end(), std::back_inserter(copyList));
+
+	// fire
+	for (auto iter = copyList.begin(); iter != copyList.end(); iter++)
+		if (NULL != (*iter)->mpprocdule)
+			(*iter)->mpprocdule->OnPlayerProcdule(*this,
+				(*iter)->mptag, event, args);
 }
 
 int Player::OnInterrupt()

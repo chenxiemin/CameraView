@@ -24,12 +24,13 @@
 #include <mutex>
 
 #include "ffmpeg-inc.h"
+#include "common.h"
 #include "log.h"
 
 namespace cxm {
 namespace av {
 
-class MyAVObject
+class MyAVObject : public cxm::util::object
 {
     private: unsigned int mid;
     private: std::mutex mmutex;

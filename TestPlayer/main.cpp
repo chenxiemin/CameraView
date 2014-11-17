@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vld.h>
 
 /*
 #include "multi-player.h"
@@ -14,7 +15,6 @@ extern "C" __declspec(dllexport) void __stdcall SdlMain();
 
 int main()
 {
-	// MultiPlayer player(640, 360, NULL);
 	SdlMain();
 
 	return 0;

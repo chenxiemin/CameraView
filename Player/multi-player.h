@@ -11,12 +11,14 @@
 #include "stream.h"
 #include "safe-queue.h"
 #include "image-merger.h"
+#include "common.h"
 
 namespace cxm {
 namespace av {
 
 class Scaler;
 class Player;
+class Recorder;
 
 class MultiPlayer : public cxm::sdl::SDL,
 	cxm::sdl::ISDLTimer, IPlayerProcdule, IStreamNotify
@@ -36,6 +38,7 @@ class MultiPlayer : public cxm::sdl::SDL,
 	private: std::list<std::shared_ptr<OnePlayer>> mplayerList;
 	private: int mopenCount;
 	private: ImageMerger mmerger;
+	private: std::list<std::shared_ptr<Recorder>> mrecorderList;
 
 	public: MultiPlayer(int width, int height, void *opaque) :
 		SDL(width, height, opaque), mopenCount(0)
@@ -49,14 +52,14 @@ class MultiPlayer : public cxm::sdl::SDL,
 	public: int Play(const std::string &url);
 	public: void Close();
 
-	private: virtual void OnTimer(void *opaque);
-	private: int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
-		CXM_PLAYER_EVENT event, void *eventArgs);
-	private: void OnFrame(Stream &stream, void *tag, AVPacket &packet,
-		std::shared_ptr<MyAVFrame> frame);
+	public: int Record(const std::string &fileName, int channel, int time);
 
-	private: static void Split(const std::string &str,
-		char spliter, std::vector<std::string> &container);
+	private: virtual void OnTimer(void *opaque);
+	private: virtual void OnKeyDown(const SDL_Event &event);
+	private: virtual int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
+		CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args);
+	private: virtual void OnFrame(Stream &stream, void *tag, AVPacket &packet,
+		std::shared_ptr<MyAVFrame> frame);
 };
 
 }
