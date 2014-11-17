@@ -18,6 +18,7 @@ class Player;
 class Recorder : public cxm::util::IRunnable, IPlayerProcdule {
 	private: std::shared_ptr<Player> mplayer;
 	private: AVFormatContext *mcontext;
+	private: AVStream *outStream;
 	private: std::shared_ptr<cxm::util::Thread> mthread;
 	private: cxm::alg::SafeQueue<MyAVPacket> msafeQueue;
 	private: bool misRun;

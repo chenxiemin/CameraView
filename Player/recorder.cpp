@@ -61,7 +61,7 @@ int Recorder::Start(const string &fileName, int recordTime)
 		AVStream *pstream = mplayer->GetStream(0)->GetStream();
 		AVCodecContext *streamContext = mplayer->GetStream(0)->GetContext();
 		// new stream
-		AVStream *outStream = avformat_new_stream(mcontext, NULL);
+		outStream = avformat_new_stream(mcontext, NULL);
 		if (NULL == outStream) {
 			LOGE("Cannot open stream");
 			break;
@@ -126,9 +126,14 @@ void Recorder::Stop()
 
 void Recorder::Run()
 {
-	AVStream *pstream = mplayer->GetStream(0)->GetStream();
 	int res = 0;
-	int pts = 0;
+	int count = 0;
+	bool isKey = false;
+	AVFrame *frame = av_frame_alloc();
+
+	AVCodec *pcodec = avcodec_find_decoder(CODEC_ID_H264);
+	AVCodecContext *pcodecContext = avcodec_alloc_context3(pcodec);
+	avcodec_open2(pcodecContext, pcodec, 0);
 
 	while (misRun) {
 		shared_ptr<MyAVPacket> packet = msafeQueue.Get();
@@ -136,22 +141,29 @@ void Recorder::Run()
 			return; // double check cause safe queue blocked
 
 		AVPacket &pkt = packet->GetPacket();
-		LOGE("Packet flag: %d", pkt.flags);
-		if (pts == 0 && !(pkt.flags & AV_PKT_FLAG_KEY)) {
-			LOGE("Skip frame before key");
-			continue;
+
+		if (!isKey) {
+			int gotPicture = -1;
+			res = avcodec_decode_video2(pcodecContext, frame, &gotPicture, &pkt);
+			if (1 == gotPicture) {
+				LOGD("Packet flag: %d, got picture: %d, res: %d", pkt.flags, gotPicture, res);
+				isKey = true;
+			}
 		}
+		if (!isKey)
+			continue;
 
 		AVPacket pkt2;
 		av_init_packet(&pkt2);
 		pkt2.stream_index = 0;
-		// uint8_t *data = new uint8_t[pkt.size];
-		// memcpy(data, pkt.data, pkt.size);
 		pkt2.data = pkt.data;
 		pkt2.size = pkt.size;
-		// pkt2.flags = pkt.flags;
-		pkt2.pts = pkt2.dts = pts;
-		pts += 300;
+		pkt2.flags = pkt.flags;
+		// pkt2.pts = count * 90000 / 25;
+		pkt2.pts = count * 300;
+		pkt2.dts = count;
+		LOGD("packet pts: %ld", pkt2.pts);
+		count++;
 		
 		// pkt2.pts = av_rescale_q(pkt.pts, pstream->codec->time_base, mcontext->streams[0]->time_base);
 		// pkt2.dts = av_rescale_q(pkt.dts, pstream->codec->time_base, mcontext->streams[0]->time_base);
@@ -159,6 +171,7 @@ void Recorder::Run()
 		// pkt.dts = av_rescale_q(pkt.dts, pstream->codec->time_base, mcontext->streams[0]->time_base);
 
 		res = av_interleaved_write_frame(mcontext, &pkt2);
+		// res = av_write_frame(mcontext, &pkt2);
 		// delete []data;
 		// av_free_packet(&pkt2);
 		if (0 != res)
