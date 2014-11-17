@@ -43,19 +43,32 @@ void MultiPlayer::OnTimer(void *opaque)
 {
 	this->AddTimer(0, this, NULL); // poll
 	
+	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
+#if 1
+	map<int, shared_ptr<MyAVFrame>> framesMap;
+	for (auto iter = mplayerList.begin(); iter != mplayerList.end(); iter++) {
+		shared_ptr<OnePlayer> onePlayer = *iter;
+		shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(100));
+		if (NULL == frame.get())
+			frame = onePlayer->mcachedFrame;
+		else
+			onePlayer->mcachedFrame = frame;
+		framesMap[onePlayer->mid] = frame;
+	}
+	mmerger.Merge(framesMap, picture);
+#elif 0
 	shared_ptr<OnePlayer> onePlayer = this->mplayerList.back();
 
 	// boocked get frame within 100ms
 	shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(100));
 	if (NULL == frame.get())
 		return;
-	shared_ptr<MyAVPicture> picture(new MyAVPicture(PIXEL_FORMAT, GetWidth(), GetHeight()));
-#if 0
-	onePlayer->mscaler->Scale(frame, picture);
-#else
 	map<int, shared_ptr<MyAVFrame>> framesMap;
 	framesMap[0] = frame;
 	mmerger.Merge(framesMap, picture);
+#else
+	shared_ptr<OnePlayer> onePlayer = this->mplayerList.back();
+	onePlayer->mscaler->Scale(frame, picture);
 #endif
 
 	this->ShowFrame(picture);

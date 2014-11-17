@@ -27,6 +27,7 @@ class MultiPlayer : public cxm::sdl::SDL,
 		std::shared_ptr<Player> mplayer;
 		std::shared_ptr<Scaler> mscaler;
 		cxm::alg::SafeQueue<MyAVFrame> mqueue;
+		std::shared_ptr<MyAVFrame> mcachedFrame;
 	};
 
 	private: AVFormatContext *pFormatCtx;

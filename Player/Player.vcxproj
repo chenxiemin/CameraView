@@ -45,6 +45,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(SolutionName)\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -63,11 +64,10 @@
     </Link>
     <PostBuildEvent>
       <Command>if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\SDL2.dll copy $(SolutionDir)\SDL2-2.0.3\lib\x86\SDL2.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
-if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avformat-55.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avformat-55.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
 if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avcodec-55.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avcodec-55.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avformat-55.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avformat-55.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
 if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avutil-52.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avutil-52.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
-if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\swscale-2.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\swscale-2.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
-</Command>
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\swscale-2.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\swscale-2.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,13 +80,23 @@ if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\swscale-2.dll co
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PLAYER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\SDL2-2.0.3\include;..\ffmpeg-2.2.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>..\ffmpeg-2.2.3\lib\avformat.lib;..\ffmpeg-2.2.3\lib\avcodec.lib;..\ffmpeg-2.2.3\lib\avutil.lib;..\ffmpeg-2.2.3\lib\swscale.lib;..\SDL2-2.0.3\lib\x86\SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
+    <PostBuildEvent>
+      <Command>if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\SDL2.dll copy $(SolutionDir)\SDL2-2.0.3\lib\x86\SDL2.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avcodec-55.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avcodec-55.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avformat-55.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avformat-55.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\avutil-52.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\avutil-52.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\
+if NOT EXIST $(SolutionDir)$(SolutionName)\bin\$(Configuration)\swscale-2.dll copy $(SolutionDir)\ffmpeg-2.2.3\lib\swscale-2.dll $(SolutionDir)$(SolutionName)\bin\$(Configuration)\</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ffmpeg.cpp" />
