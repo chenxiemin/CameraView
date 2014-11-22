@@ -230,16 +230,17 @@ int Player::OnFrame()
         return 0;
     }
 
-	// fire notify
-	FireNotify(CXM_PLAYER_EVENT_GET_PACKET, myPacket);
-
     // get stream
     AVPacket &packet = myPacket->GetPacket();
     shared_ptr<Stream> pStream = this->mStreamList[packet.stream_index];
-    if (NULL != pStream)
+    if (NULL != pStream) {
+		// fire notify
+		FireNotify(CXM_PLAYER_EVENT_GET_PACKET, myPacket);
+
         // set packet
         if (0 != pStream->FillPacket(myPacket))
             LOG(LOG_LEVEL_D, "Cannot fill packet");
+	}
 
     mretryCount = 0; // reset retry count
     return 0;
