@@ -71,12 +71,16 @@ int Recorder::Start(const string &fileName, int recordTime)
 			LOGE("Cannot copy context: %d", res);
 			break;
 		}
+#if 0
 		outStream->sample_aspect_ratio.num = streamContext->sample_aspect_ratio.num;
 		outStream->sample_aspect_ratio.den = streamContext->sample_aspect_ratio.den;
 		outStream->r_frame_rate = pstream->r_frame_rate;
 		outStream->avg_frame_rate = outStream->r_frame_rate;
 		outStream->time_base = av_inv_q(outStream->r_frame_rate);
 		outStream->codec->time_base = outStream->time_base;
+#endif
+		outStream->time_base = pstream->time_base;
+		outStream->codec->time_base = pstream->time_base;
 		res = avformat_write_header(mcontext, NULL);
 		if (0 != res) {
 			LOGE("Cannot write header: %d", res);
@@ -130,6 +134,7 @@ void Recorder::Run()
 	int count = 0;
 	bool isKey = false;
 	AVFrame *frame = av_frame_alloc();
+	int64_t startPts = 0;
 
 	AVCodec *pcodec = avcodec_find_decoder(CODEC_ID_H264);
 	AVCodecContext *pcodecContext = avcodec_alloc_context3(pcodec);
@@ -148,6 +153,7 @@ void Recorder::Run()
 			if (1 == gotPicture) {
 				LOGD("Packet flag: %d, got picture: %d, res: %d", pkt.flags, gotPicture, res);
 				isKey = true;
+				startPts = pkt.pts;
 			}
 		}
 		if (!isKey)
@@ -158,12 +164,15 @@ void Recorder::Run()
 		pkt2.stream_index = 0;
 		pkt2.data = pkt.data;
 		pkt2.size = pkt.size;
+		pkt2.pts = pkt2.dts = (pkt.pts - startPts);
+		LOGD("recording pkt2 pts: %lld", pkt2.pts);
+#if 0
 		pkt2.flags = pkt.flags;
-		// pkt2.pts = count * 90000 / 25;
 		pkt2.pts = count * 300;
 		pkt2.dts = count;
 		LOGD("packet pts: %ld", pkt2.pts);
 		count++;
+#endif
 		
 		// pkt2.pts = av_rescale_q(pkt.pts, pstream->codec->time_base, mcontext->streams[0]->time_base);
 		// pkt2.dts = av_rescale_q(pkt.dts, pstream->codec->time_base, mcontext->streams[0]->time_base);
