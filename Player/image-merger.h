@@ -19,8 +19,13 @@ class ImageMerger
 
 	public: void Merge(std::map<int, std::shared_ptr<MyAVFrame>> inFrames,
 			std::shared_ptr<MyAVPicture> outPicture);
+
+    public: void SetDisplayGrid(int grid) { mrow = mcolumn = grid; }
+    public: int GetDisplayGrid() { return mrow; }
+
 };
 
 }
 }
 #endif
+

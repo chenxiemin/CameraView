@@ -92,7 +92,7 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
 		isInRecording = !isInRecording;
 		break;
 	}
-	case SDLK_0:
+    case SDLK_0:
 	case SDLK_1:
 	case SDLK_2:
 	case SDLK_3:
@@ -110,7 +110,11 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
 					 event.key.keysym.sym - SDLK_0;
 		 }
 		 break;
-	}
+	} case SDLK_d: {
+         // change display grid with column and row
+         int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
+         mmerger.SetDisplayGrid(newGrid);
+    }
 	}
 }
 
@@ -171,3 +175,4 @@ void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
 
 }
 }
+

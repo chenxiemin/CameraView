@@ -1,16 +1,13 @@
 cmake_minimum_required (VERSION 2.6)
 
 # include
+include_directories("../third-party/include/SDL2")
 # if (MSVC)
 #     include_directories("${PROJECT_SOURCE_DIR}/include/win32")
 # endif (MSVC)
 # if (CMAKE_COMPILER_IS_GNUCC)
 #     include_directories("/usr/local/include/SDL2")
 # endif (CMAKE_COMPILER_IS_GNUCC)
-include_directories("../third-party/include/SDL2")
-# include_directories("./util")
-# include_directories("./lib/android/include")
-# include_directories("../SDL/include")
 
 # cflags
 # set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}")
@@ -22,6 +19,9 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 # source file
 FILE (GLOB SRC *.cpp)
 add_library (player ${SRC})
+
+# for other includes this module
+target_include_directories (player PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # link lib
 # if (MSVC)
