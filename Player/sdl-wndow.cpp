@@ -1,5 +1,7 @@
+#ifdef _WIN32
 #include <Windows.h>
 #include <vld.h>
+#endif
 
 #include "mysdl.h"
 #include "log.h"
@@ -9,46 +11,43 @@
 #include "stream.h"
 #include "multi-player.h"
 
+#ifdef _WIN32
+#define EXPORT_HEAD __declspec(dllexport) __stdcall
+#else
+#define EXPORT_HEAD
+#endif
+
 using namespace std;
 using namespace cxm::av;
 using namespace cxm::sdl;
 
-const char *url = "rtsp://192.168.0.129/12 rtsp://192.168.0.128/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
+// const char *url = "rtsp://192.168.0.129/12 rtsp://192.168.0.128/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
 // const char *url = "rtsp://127.0.0.1/test.264 rtsp://127.0.0.1/test10.264";
-// const char *url = "rtsp://192.168.0.10/live";
+const char *url = "rtsp://192.168.0.11/live-high";
 shared_ptr<MultiPlayer> sdl;
 
-int SDL_main(HWND handle, const RECT &rc)
+extern "C" EXPORT_HEAD int SdlOpen(void *handler, int x, int y)
 {
-	sdl = shared_ptr<MultiPlayer>(new MultiPlayer(rc.right, rc.bottom, handle));
+	LOGD("Open sdl");
+	sdl = shared_ptr<MultiPlayer>(new MultiPlayer(x, y, handler));
 	sdl->Play(url);
 
-	return 0;
+    return 0;
 }
 
-extern "C" __declspec(dllexport) int __stdcall SdlOpen(int handler, int x, int y)
-{
-	RECT rect;
-	rect.right = x;
-	rect.bottom = y;
-
-	LOGD("Open sdl");
-	return SDL_main((HWND)handler, rect);
-}
-
-extern "C" __declspec(dllexport) void __stdcall SdlClose()
+extern "C" EXPORT_HEAD void SdlClose()
 {
 	sdl->Close();
 	sdl.reset();
 	LOGD("Exit sdl");
 }
 
-extern "C" __declspec(dllexport) void __stdcall SdlTimer()
+extern "C" EXPORT_HEAD void SdlTimer()
 {
 	sdl->PollEvent();
 }
 
-extern "C" __declspec(dllexport) void __stdcall SdlMain()
+extern "C" EXPORT_HEAD void SdlMain()
 {
 	MultiPlayer player(640, 360, NULL);
 	player.Play(url);

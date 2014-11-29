@@ -18,7 +18,7 @@
 
 #include <assert.h>
 
-#include "Scaler.h"
+#include "scaler.h"
 #include "log.h"
 
 using namespace cxm::av;

@@ -56,7 +56,7 @@ class MultiPlayer : public cxm::sdl::SDL,
 
 	private: virtual void OnTimer(void *opaque);
 	private: virtual void OnKeyDown(const SDL_Event &event);
-	private: virtual int MultiPlayer::OnPlayerProcdule(Player &player, void *procduleTag,
+	private: virtual int OnPlayerProcdule(Player &player, void *procduleTag,
 		CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args);
 	private: virtual void OnFrame(Stream &stream, void *tag, AVPacket &packet,
 		std::shared_ptr<MyAVFrame> frame);

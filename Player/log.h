@@ -26,6 +26,7 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #define LOGD(...) LOG(LOG_LEVEL_D, __VA_ARGS__)
 
@@ -55,9 +56,8 @@
 #define LOG(level, ...) do { if (LOG_LEVEL_V == level) break; \
 	fprintf(stderr, __VA_ARGS__); \
 	fprintf(stderr, " | %s %d", __MY_FILE__, __LINE__); \
-	fprintf(stderr, "\n"); fflush(stderr);
-} \
-while (0)
+	fprintf(stderr, "\n"); fflush(stderr); \
+} while (0)
 #endif
 
 #define LOG_LEVEL_V 2
