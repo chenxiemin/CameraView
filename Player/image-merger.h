@@ -20,9 +20,15 @@ class ImageMerger
 	public: void Merge(std::map<int, std::shared_ptr<MyAVFrame>> inFrames,
 			std::shared_ptr<MyAVPicture> outPicture);
 
-    public: void SetDisplayGrid(int grid) { mrow = mcolumn = grid; }
+    public: void SetDisplayGrid(int grid)
+    {
+        mrow = mcolumn = grid;
+        mstartPage = 0; // need to reset the start page
+    }
     public: int GetDisplayGrid() { return mrow; }
-
+    public: void SetStartPage(int page) { mstartPage = page; }
+    public: int GetStartPage() { return mstartPage; }
+    public: int GetDisplayNums() { return mrow * mcolumn; }
 };
 
 }

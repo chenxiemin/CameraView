@@ -25,7 +25,8 @@ void ImageMerger::Merge(map<int, shared_ptr<MyAVFrame>> inFrames,
 			int colIndex = j / perHeight;
 			int rowIndex = i / perWidth;
 			// get associate frame
-			std::shared_ptr<MyAVFrame> curFrame = inFrames[colIndex * mrow + rowIndex];
+			std::shared_ptr<MyAVFrame> curFrame = inFrames[
+                colIndex * mrow + rowIndex + mstartPage * mcolumn * mrow];
 			if (NULL == curFrame.get())
 				continue;
 
@@ -52,7 +53,8 @@ void ImageMerger::Merge(map<int, shared_ptr<MyAVFrame>> inFrames,
 			int colIndex = j / perHeight;
 			int rowIndex = i / perWidth;
 			// get associate frame
-			std::shared_ptr<MyAVFrame> curFrame = inFrames[colIndex * mrow + rowIndex];
+			std::shared_ptr<MyAVFrame> curFrame = inFrames[
+                colIndex * mrow + rowIndex + mstartPage * mcolumn * mrow];
 			if (NULL == curFrame.get())
 				continue;
 

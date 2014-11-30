@@ -102,18 +102,41 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
 	case SDLK_7:
 	case SDLK_8:
 	case SDLK_9: {
-		 if (isInRecording) {
-			 if (-1 == recordChannel)
-				 recordChannel = event.key.keysym.sym - SDLK_0;
-			 else
-				 recordChannel = recordChannel * 10 +
-					 event.key.keysym.sym - SDLK_0;
-		 }
-		 break;
+		if (isInRecording) {
+		    if (-1 == recordChannel)
+		   	 recordChannel = event.key.keysym.sym - SDLK_0;
+		    else
+		   	 recordChannel = recordChannel * 10 +
+		   		 event.key.keysym.sym - SDLK_0;
+		}
+		break;
 	} case SDLK_d: {
-         // change display grid with column and row
-         int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
-         mmerger.SetDisplayGrid(newGrid);
+        // change display grid with column and row
+        int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
+        mmerger.SetDisplayGrid(newGrid);
+    } case SDLK_LEFT: {
+        // page left
+        int currentPage = mmerger.GetStartPage();
+        if (currentPage <= 0) {
+            LOGE("Current Page reach at beginning: %d", currentPage);
+            break;
+        }
+        currentPage--;
+        mmerger.SetStartPage(currentPage);
+        LOGD("Set start page to: %d", mmerger.GetStartPage());
+        break;
+    } case SDLK_RIGHT: {
+        // page right
+        int currentPage = mmerger.GetStartPage() + 1;
+        int displayItems = mmerger.GetDisplayNums();
+        if (currentPage * displayItems >= mplayerList.size()) {
+            LOGE("Current Page reach at end: %d %d",
+                    currentPage * displayItems, (int)mplayerList.size());
+            break;
+        }
+        mmerger.SetStartPage(mmerger.GetStartPage() + 1);
+        LOGD("Set merger start page to: %d", mmerger.GetStartPage());
+        break;
     }
 	}
 }
