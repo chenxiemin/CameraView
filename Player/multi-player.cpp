@@ -129,7 +129,7 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
         // page right
         int currentPage = mmerger.GetStartPage() + 1;
         int displayItems = mmerger.GetDisplayNums();
-        if (currentPage * displayItems >= mplayerList.size()) {
+        if (currentPage * displayItems >= (int)mplayerList.size()) {
             LOGE("Current Page reach at end: %d %d",
                     currentPage * displayItems, (int)mplayerList.size());
             break;
