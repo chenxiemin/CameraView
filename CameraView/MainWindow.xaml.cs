@@ -23,7 +23,8 @@ namespace CameraView
     /// </summary>
     public partial class MainWindow : Window
     {
-        private string mplayUrl = "rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
+        // private string mplayUrl = "rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
+        private string mplayUrl = "rtsp://192.168.0.11/live-high";
         public MainWindow()
         {
             InitializeComponent();
