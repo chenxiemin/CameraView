@@ -19,7 +19,7 @@ endif (CMAKE_COMPILER_IS_GNUCC)
 
 # source file
 FILE (GLOB SRC *.cpp)
-add_library (player ${SRC})
+add_library (player SHARED ${SRC})
 
 # for other includes this module
 target_include_directories (player PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

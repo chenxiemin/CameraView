@@ -53,7 +53,7 @@ namespace CameraView
                         misInit = true;
                     else
                         break;
-                    SdlPlayer.SdlOpen(handler.ToInt32(), mwidth, mheight);
+                    SdlPlayer.SdlOpen(handler, mwidth, mheight, new StringBuilder("rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12"));
 
                     this.mtimer = new DispatcherTimer();
                     this.mtimer.Interval = TimeSpan.FromMilliseconds(10);

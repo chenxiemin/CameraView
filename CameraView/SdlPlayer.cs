@@ -10,7 +10,7 @@ namespace CameraView
     class SdlPlayer
     {
         [DllImport("Player.dll")]
-        public static extern int SdlOpen(int handler, int width, int height);
+        public static extern int SdlOpen(IntPtr handler, int width, int height, StringBuilder url);
 
         [DllImport("Player.dll")]
         public static extern void SdlClose();
