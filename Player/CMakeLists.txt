@@ -18,7 +18,7 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 # source file
-FILE (GLOB SRC *.cpp)
+FILE (GLOB SRC *.cpp *h)
 add_library (player SHARED ${SRC})
 
 # for other includes this module

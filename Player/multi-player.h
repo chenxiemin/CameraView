@@ -54,6 +54,21 @@ class MultiPlayer : public cxm::sdl::SDL,
 
 	public: int Record(const std::string &fileName, int channel, int time);
 
+	public: int GetPlayerCount() { return mplayerList.size(); }
+	public: std::shared_ptr<Player> GetPlayer(int index)
+	{
+		if (index >= (int)mplayerList.size())
+			return NULL;
+
+		auto iter = mplayerList.begin();
+		std::advance(iter, index);
+		return (*iter)->mplayer;
+	}
+
+	public: void ItermDisplayGrid();
+	public: void PageLeft();
+	public: void PageRight();
+
 	private: virtual void OnTimer(void *opaque);
 	private: virtual void OnKeyDown(const SDL_Event &event);
 	private: virtual int OnPlayerProcdule(Player &player, void *procduleTag,

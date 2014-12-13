@@ -111,32 +111,11 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
 		}
 		break;
 	} case SDLK_d: {
-        // change display grid with column and row
-        int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
-        mmerger.SetDisplayGrid(newGrid);
+		 this->ItermDisplayGrid();
     } case SDLK_LEFT: {
-        // page left
-        int currentPage = mmerger.GetStartPage();
-        if (currentPage <= 0) {
-            LOGE("Current Page reach at beginning: %d", currentPage);
-            break;
-        }
-        currentPage--;
-        mmerger.SetStartPage(currentPage);
-        LOGD("Set start page to: %d", mmerger.GetStartPage());
-        break;
+		this->PageLeft();
     } case SDLK_RIGHT: {
-        // page right
-        int currentPage = mmerger.GetStartPage() + 1;
-        int displayItems = mmerger.GetDisplayNums();
-        if (currentPage * displayItems >= (int)mplayerList.size()) {
-            LOGE("Current Page reach at end: %d %d",
-                    currentPage * displayItems, (int)mplayerList.size());
-            break;
-        }
-        mmerger.SetStartPage(mmerger.GetStartPage() + 1);
-        LOGD("Set merger start page to: %d", mmerger.GetStartPage());
-        break;
+		this->PageRight();
     }
 	}
 }
@@ -194,6 +173,40 @@ void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
 
 	OnePlayer *onePlayer = (OnePlayer *)tag;
 	onePlayer->mqueue.Put(frame);
+}
+
+void MultiPlayer::ItermDisplayGrid()
+{
+	// change display grid with column and row
+	int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
+	mmerger.SetDisplayGrid(newGrid);
+}
+
+void MultiPlayer::PageLeft()
+{
+	// page left
+	int currentPage = mmerger.GetStartPage();
+	if (currentPage <= 0) {
+		LOGE("Current Page reach at beginning: %d", currentPage);
+		return;
+	}
+	currentPage--;
+	mmerger.SetStartPage(currentPage);
+	LOGD("Set start page to: %d", mmerger.GetStartPage());
+}
+
+void MultiPlayer::PageRight()
+{
+	// page right
+	int currentPage = mmerger.GetStartPage() + 1;
+	int displayItems = mmerger.GetDisplayNums();
+	if (currentPage * displayItems >= (int)mplayerList.size()) {
+		LOGE("Current Page reach at end: %d %d",
+			currentPage * displayItems, (int)mplayerList.size());
+		return;
+	}
+	mmerger.SetStartPage(mmerger.GetStartPage() + 1);
+	LOGD("Set merger start page to: %d", mmerger.GetStartPage());
 }
 
 }

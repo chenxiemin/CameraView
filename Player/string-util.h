@@ -25,6 +25,20 @@ class StringUtil {
 		if (sub.length() > 0)
 			container.push_back(sub);
 	}
+
+	// truncated copy string automatically
+	public: static void SafeCopyCString(char *dst, int dstSize, const char *src)
+	{
+		if (NULL == dst || dstSize < 1)
+			return;
+
+		dstSize--; // remain \0
+		int copyLen = strlen(src);
+		if (copyLen >= dstSize)
+			copyLen = dstSize;
+		memcpy(dst, src, copyLen);
+		dst[copyLen] = '\0';
+	}
 };
 
 }

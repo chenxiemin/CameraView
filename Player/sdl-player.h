@@ -30,9 +30,23 @@
 #define EXPORT_HEAD(type) type
 #endif
 
+#define SDL_PLAYER_NAME_MAX_LEN 256
+
+typedef struct SdlPlayer {
+	char name[SDL_PLAYER_NAME_MAX_LEN];
+} SdlPlayer;
+
 extern "C" EXPORT_HEAD(int) SdlOpen(void *handler, int x, int y, const char *url);
 extern "C" EXPORT_HEAD(void) SdlClose();
 extern "C" EXPORT_HEAD(void) SdlTimer();
 extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url);
+extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url);
+
+extern "C" EXPORT_HEAD(int) SdlGetPlayerCount();
+extern "C" EXPORT_HEAD(int) SdlGetPlayer(SdlPlayer *pplayer, int index);
+extern "C" EXPORT_HEAD(void) SdlIterDisplayGrid();
+extern "C" EXPORT_HEAD(void) SdlPageLeft();
+extern "C" EXPORT_HEAD(void) SdlPageRight();
+extern "C" EXPORT_HEAD(int) SdlRecording(const char *name, int channel, int time);
 
 #endif

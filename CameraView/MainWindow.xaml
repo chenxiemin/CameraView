@@ -5,5 +5,126 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:host="clr-namespace:CameraView;assembly=" 
         xmlns:custom="clr-namespace:Win32ControlInWpfWindow;assembly="
-        Title="MainWindow" WindowStyle="SingleBorderWindow" Width="800" Height="600">
+        Title="MainWindow" WindowStyle="SingleBorderWindow" Width="1280" Height="720">
+    <DockPanel LastChildFill="True">
+        <Menu HorizontalAlignment="Stretch" DockPanel.Dock="Top" TextBlock.FontSize="16">
+            <MenuItem Header="文件">
+                <MenuItem Header="退出" Click="OnExitMenuItemClick" />
+            </MenuItem>
+            
+            <MenuItem Header="设置">
+                <MenuItem Header="录像存放路径" />
+                <MenuItem Header="录像时长" />
+                <MenuItem Header="录像计划" />
+            </MenuItem>
+        </Menu>
+        <Grid Name="contentGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="4*" />
+            </Grid.ColumnDefinitions>
+
+            <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    TextBlock.FontSize="12">
+                <TabControl.Resources>
+                    <Style TargetType="TabItem">
+                        <!--
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border Name="Border" BorderThickness="1,1,1,0" BorderBrush="Black" CornerRadius="4,4,0,0" Margin="2,0">
+                                    <ContentPresenter x:Name="ContentSite"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Center"
+                                        ContentSource="Header"
+                                        Margin="8,2"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Border" Property="Background" Value="Yellow" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter TargetName="Border" Property="Background" Value="White" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                 
+-->
+                    </Style>
+                </TabControl.Resources>
+
+                <!-- 设备 -->
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="设备"></TextBlock>
+                    </TabItem.Header>
+
+                    <DockPanel LastChildFill="True">
+                        <TextBlock Text="设备列表" FontSize="16" DockPanel.Dock="Top" />
+                        <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom" Orientation="Horizontal">
+                            <Button Content="模式" Click="OnModeButtonClick" Margin="0 0 4 0" />
+                            <Button Content="左翻页" Click="OnPageLeftButtonClick" Margin="0 0 4 0" />
+                            <Button Content="右翻页" Click="OnPageRightButtonClick" Margin="0 0 4 0" />
+                        </StackPanel>
+                        <ListBox Name="deviceList" Margin="12 0 0 0" BorderThickness="0" />
+                    </DockPanel>
+                </TabItem>
+
+                <!-- 控制 -->
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="控制" TextBlock.FontSize="12" />
+                    </TabItem.Header>
+
+                    <StackPanel Orientation="Vertical" TextBlock.FontSize="20">
+                        <TextBlock Text="云台控制：" />
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Left"
+                                Margin="32 4 0 0">
+                            <Button Content="上" HorizontalAlignment="Center" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="左" Margin="0 0 36 0" />
+                                <Button Content="右" />
+                            </StackPanel>
+                            <Button Content="下" HorizontalAlignment="Center" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="色彩控制：" />
+
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Text="亮度：" Grid.Row="0" Grid.Column="0" />
+                                <TextBlock Text="色度:" Grid.Row="1" Grid.Column="0" />
+                                <TextBlock Text="饱和度：" Grid.Row="2" Grid.Column="0" />
+
+                                <Slider Grid.Row="0" Grid.Column="1" />
+                                <Slider Grid.Row="1" Grid.Column="1" />
+                                <Slider Grid.Row="2" Grid.Column="1" />
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+
+                </TabItem>
+            </TabControl>
+
+            <GridSplitter HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                      Grid.Column="1" ResizeBehavior="PreviousAndNext" Width="5" />
+        </Grid>
+    </DockPanel>
 </Window>

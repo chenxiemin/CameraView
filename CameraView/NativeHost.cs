@@ -17,6 +17,13 @@ namespace CameraView
         private IntPtr handler;
         private DispatcherTimer mtimer;
         private bool misInit = false;
+        private string mplayUrl;
+
+        public string PlayUrl
+        {
+            get { return mplayUrl; }
+            set { mplayUrl = value; }
+        }
 
         public NativeHost(double width, double height)
         {
@@ -36,8 +43,10 @@ namespace CameraView
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
-            this.mtimer.Stop();
-            SdlPlayer.SdlClose();
+            if (null != this.mtimer) {
+                this.mtimer.Stop();
+                SdlPlayer.SdlClose();
+            }
 
             NativeMethods.DestroyWindow(hwnd.Handle);
         }
@@ -53,7 +62,7 @@ namespace CameraView
                         misInit = true;
                     else
                         break;
-                    SdlPlayer.SdlOpen(handler, mwidth, mheight, new StringBuilder("rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12"));
+                    SdlPlayer.SdlOpen(handler, mwidth, mheight, new StringBuilder(PlayUrl));
 
                     this.mtimer = new DispatcherTimer();
                     this.mtimer.Interval = TimeSpan.FromMilliseconds(10);

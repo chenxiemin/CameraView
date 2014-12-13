@@ -17,5 +17,17 @@ namespace CameraView
 
         [DllImport("Player.dll")]
         public static extern void SdlTimer();
+
+        [DllImport("Player.dll")]
+        public static extern void SdlIterDisplayGrid();
+
+        [DllImport("Player.dll")]
+        public static extern void SdlPageLeft();
+
+        [DllImport("Player.dll")]
+        public static extern void SdlPageRight();
+
+        [DllImport("Player.dll")]
+        public static extern int SdlRecording(StringBuilder name, int channel, int time);
     }
 }
