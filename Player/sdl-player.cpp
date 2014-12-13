@@ -15,7 +15,7 @@ using namespace cxm::sdl;
 
 shared_ptr<MultiPlayer> sdl;
 
-extern "C" EXPORT_HEAD int SdlOpen(void *handler, int x, int y, const char *url)
+extern "C" EXPORT_HEAD(int) SdlOpen(void *handler, int x, int y, const char *url)
 {
 	LOGD("Open sdl");
 	sdl = shared_ptr<MultiPlayer>(new MultiPlayer(x, y, handler));
@@ -24,19 +24,19 @@ extern "C" EXPORT_HEAD int SdlOpen(void *handler, int x, int y, const char *url)
     return 0;
 }
 
-extern "C" EXPORT_HEAD void SdlClose()
+extern "C" EXPORT_HEAD(void) SdlClose()
 {
 	sdl->Close();
 	sdl.reset();
 	LOGD("Exit sdl");
 }
 
-extern "C" EXPORT_HEAD void SdlTimer()
+extern "C" EXPORT_HEAD(void) SdlTimer()
 {
 	sdl->PollEvent();
 }
 
-extern "C" EXPORT_HEAD void SdlMain(int width, int height, const char *url)
+extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url)
 {
     assert(width > 0 && height > 0);
 

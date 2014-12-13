@@ -25,15 +25,14 @@
 #endif
 
 #ifdef _WIN32
-#define EXPORT_HEAD __declspec(dllexport) __stdcall
+#define EXPORT_HEAD(type) __declspec(dllexport) type __stdcall
 #else
-#define EXPORT_HEAD
+#define EXPORT_HEAD(type) type
 #endif
 
-extern "C" EXPORT_HEAD int SdlOpen(void *handler, int x, int y, const char *url);
-extern "C" EXPORT_HEAD void SdlClose();
-extern "C" EXPORT_HEAD void SdlTimer();
-extern "C" EXPORT_HEAD void SdlMain(int width, int height, const char *url);
+extern "C" EXPORT_HEAD(int) SdlOpen(void *handler, int x, int y, const char *url);
+extern "C" EXPORT_HEAD(void) SdlClose();
+extern "C" EXPORT_HEAD(void) SdlTimer();
+extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url);
 
 #endif
-
