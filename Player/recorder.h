@@ -29,6 +29,8 @@ class Recorder : public cxm::util::IRunnable, IPlayerProcdule {
 	public: int Start(const std::string &fileName, int recordTime);
 	public: void Stop();
 
+	public: std::shared_ptr<Player> GetPlayer() { return mplayer; }
+
 	private: virtual void Run();
 	private: virtual int OnPlayerProcdule(Player &player, void *procduleTag,
 		CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args);

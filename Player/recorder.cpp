@@ -107,6 +107,7 @@ void Recorder::Stop()
 	if (NULL == mcontext)
 		return;
 
+	LOGI("Stop recorder at: %s", mplayer->GetURL().c_str());
 	// unregist notify
 	mplayer->RemovePlayerProcdule(this);
 

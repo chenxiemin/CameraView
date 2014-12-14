@@ -23,9 +23,10 @@ class Recorder;
 class MultiPlayer : public cxm::sdl::SDL,
 	cxm::sdl::ISDLTimer, IPlayerProcdule, IStreamNotify
 {
-	private: struct OnePlayer
+	public: struct OnePlayer
 	{
-		int mid;
+		int mid; // unique id
+		int mindex; // index is variable, from 0 ~ N contogous
 		std::shared_ptr<Player> mplayer;
 		std::shared_ptr<Scaler> mscaler;
 		cxm::alg::SafeQueue<MyAVFrame> mqueue;
@@ -53,9 +54,12 @@ class MultiPlayer : public cxm::sdl::SDL,
 	public: void Close();
 
 	public: int Record(const std::string &fileName, int channel, int time);
+	public: void StopRecord(int playerId);
+	public: bool IsRecord(int playerId);
 
+	/*
 	public: int GetPlayerCount() { return mplayerList.size(); }
-	public: std::shared_ptr<Player> GetPlayer(int index)
+	public: std::shared_ptr<OnePlayer> GetPlayers(int index)
 	{
 		if (index >= (int)mplayerList.size())
 			return NULL;
@@ -63,6 +67,11 @@ class MultiPlayer : public cxm::sdl::SDL,
 		auto iter = mplayerList.begin();
 		std::advance(iter, index);
 		return (*iter)->mplayer;
+	}
+	*/
+	public: std::list<std::shared_ptr<OnePlayer>> GetPlayerList()
+	{
+		return mplayerList;
 	}
 
 	public: void ItermDisplayGrid();

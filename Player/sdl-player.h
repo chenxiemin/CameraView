@@ -33,6 +33,7 @@
 #define SDL_PLAYER_NAME_MAX_LEN 256
 
 typedef struct SdlPlayer {
+	int id;
 	char name[SDL_PLAYER_NAME_MAX_LEN];
 } SdlPlayer;
 
@@ -43,10 +44,14 @@ extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url);
 extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url);
 
 extern "C" EXPORT_HEAD(int) SdlGetPlayerCount();
-extern "C" EXPORT_HEAD(int) SdlGetPlayer(SdlPlayer *pplayer, int index);
+extern "C" EXPORT_HEAD(int) SdlGetPlayer(SdlPlayer *pplayer, int len);
 extern "C" EXPORT_HEAD(void) SdlIterDisplayGrid();
 extern "C" EXPORT_HEAD(void) SdlPageLeft();
 extern "C" EXPORT_HEAD(void) SdlPageRight();
-extern "C" EXPORT_HEAD(int) SdlRecording(const char *name, int channel, int time);
+// recording by player id
+// player id can get from SdlPlayer.id
+extern "C" EXPORT_HEAD(int) SdlRecording(const char *name, int playerId, int time);
+extern "C" EXPORT_HEAD(void) SdlStopRecording(int playerId);
+extern "C" EXPORT_HEAD(int) SdlIsRecording(int playerId);
 
 #endif

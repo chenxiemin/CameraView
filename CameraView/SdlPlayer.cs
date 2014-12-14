@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace CameraView
 {
+    [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Ansi)]
+    struct Player
+    {
+        public int id;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+        public string name;
+    }
+
     class SdlPlayer
     {
         [DllImport("Player.dll")]
@@ -19,6 +27,12 @@ namespace CameraView
         public static extern void SdlTimer();
 
         [DllImport("Player.dll")]
+        public static extern int SdlGetPlayerCount();
+
+        [DllImport("Player.dll")]
+        public static extern int SdlGetPlayer([In, Out] Player[] players, int arraySize);
+
+        [DllImport("Player.dll")]
         public static extern void SdlIterDisplayGrid();
 
         [DllImport("Player.dll")]
@@ -29,5 +43,11 @@ namespace CameraView
 
         [DllImport("Player.dll")]
         public static extern int SdlRecording(StringBuilder name, int channel, int time);
+
+        [DllImport("Player.dll")]
+        public static extern void SdlStopRecording(int channel);
+
+        [DllImport("Player.dll")]
+        public static extern int SdlIsRecording(int channel);
     }
 }

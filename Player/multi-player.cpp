@@ -29,6 +29,7 @@ int MultiPlayer::Play(const string &url)
 
 		onePlayer->mplayer = player;
 		onePlayer->mid = mopenCount++;
+		onePlayer->mindex = onePlayer->mid;
 		this->mplayerList.push_back(onePlayer);
 	}
 
@@ -70,7 +71,45 @@ int MultiPlayer::Record(const std::string &fileName, int channel, int time)
 	// start record TODO fix hard code
 	shared_ptr<Recorder> recorder(new Recorder(onePlayer->mplayer));
 	mrecorderList.push_back(recorder);
-	return recorder->Start("test.mp4", 10);
+	return recorder->Start(fileName + ".mp4", time);
+}
+
+void MultiPlayer::StopRecord(int playerId)
+{
+	for (auto oneIter = this->mplayerList.begin();
+		oneIter != mplayerList.end(); oneIter++) {
+		if (playerId != (*oneIter)->mid)
+			continue;
+
+		for (auto iter = this->mrecorderList.begin();
+			iter != mrecorderList.end(); iter++) {
+			if ((*oneIter)->mplayer.get() != (*iter)->GetPlayer().get())
+				continue;
+
+			(*iter)->Stop();
+			mrecorderList.erase(iter);
+			return;
+		}
+	}
+}
+
+bool MultiPlayer::IsRecord(int playerId)
+{
+	for (auto oneIter = this->mplayerList.begin();
+		oneIter != mplayerList.end(); oneIter++) {
+		if (playerId != (*oneIter)->mid)
+			continue;
+
+		for (auto iter = this->mrecorderList.begin();
+			iter != mrecorderList.end(); iter++) {
+			if ((*oneIter)->mplayer.get() != (*iter)->GetPlayer().get())
+				continue;
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void MultiPlayer::OnKeyDown(const SDL_Event &event)
@@ -133,7 +172,7 @@ void MultiPlayer::OnTimer(void *opaque)
 			frame = onePlayer->mcachedFrame;
 		else
 			onePlayer->mcachedFrame = frame;
-		framesMap[onePlayer->mid] = frame;
+		framesMap[onePlayer->mindex] = frame;
 	}
 	mmerger.Merge(framesMap, picture);
 

@@ -10,6 +10,16 @@ using Win32ControlInWpfWindow;
 
 namespace CameraView
 {
+    public enum PlayerEvent
+    {
+        PLAYED
+    }
+
+    public interface PlayerCallback
+    {
+        void OnPlayerCallback(PlayerEvent playerEvnet, object args);
+    }
+
     class NativeHost : HwndHost
     {
         private int mwidth = 0;
@@ -18,6 +28,13 @@ namespace CameraView
         private DispatcherTimer mtimer;
         private bool misInit = false;
         private string mplayUrl;
+        private PlayerCallback mcallback = null;
+
+        public PlayerCallback Callback
+        {
+            get { return mcallback; }
+            set { mcallback = value; }
+        }
 
         public string PlayUrl
         {
@@ -63,6 +80,8 @@ namespace CameraView
                     else
                         break;
                     SdlPlayer.SdlOpen(handler, mwidth, mheight, new StringBuilder(PlayUrl));
+                    if (null != Callback)
+                        Callback.OnPlayerCallback(PlayerEvent.PLAYED, null);
 
                     this.mtimer = new DispatcherTimer();
                     this.mtimer.Interval = TimeSpan.FromMilliseconds(10);

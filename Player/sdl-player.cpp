@@ -56,22 +56,27 @@ extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url)
 extern "C" EXPORT_HEAD(int) SdlGetPlayerCount()
 {
 	assert(NULL != sdl.get());
-	return sdl->GetPlayerCount();
+	return sdl->GetPlayerList().size();
 }
 
-extern "C" EXPORT_HEAD(int) SdlGetPlayer(SdlPlayer *pplayer, int index)
+extern "C" EXPORT_HEAD(int) SdlGetPlayer(SdlPlayer *pplayer, int len)
 {
 	assert(NULL != sdl.get());
 	assert(NULL != pplayer && NULL != pplayer->name);
-	if (index >= sdl->GetPlayerCount()) {
-		LOGE("Get player out of range");
-		return -1;
+
+	auto playerList = sdl->GetPlayerList();
+	if (len < (int)playerList.size())
+		return 0;
+
+	int i = 0;
+	for (auto iter = playerList.begin(); iter != playerList.end(); iter++) {
+		pplayer[i].id = (*iter)->mid;
+		StringUtil::SafeCopyCString(pplayer[i].name, SDL_PLAYER_NAME_MAX_LEN,
+			(*iter)->mplayer->GetURL().c_str());
+		i++;
 	}
 
-	shared_ptr<Player> player = sdl->GetPlayer(index);
-	StringUtil::SafeCopyCString(pplayer->name, SDL_PLAYER_NAME_MAX_LEN,
-		player->GetURL().c_str());
-	return 0;
+	return playerList.size();
 }
 
 extern "C" EXPORT_HEAD(void) SdlIterDisplayGrid()
@@ -100,4 +105,18 @@ extern "C" EXPORT_HEAD(int) SdlRecording(const char *name, int channel, int time
 	assert(NULL != sdl.get());
 
 	return sdl->Record(name, channel, time);
+}
+
+extern "C" EXPORT_HEAD(void) SdlStopRecording(int playerId)
+{
+	assert(NULL != sdl.get());
+
+	return sdl->StopRecord(playerId);
+}
+
+extern "C" EXPORT_HEAD(int) SdlIsRecording(int playerId)
+{
+	assert(NULL != sdl.get());
+
+	return (int)sdl->IsRecord(playerId);
 }
