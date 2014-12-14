@@ -84,7 +84,7 @@ namespace CameraView
                         Callback.OnPlayerCallback(PlayerEvent.PLAYED, null);
 
                     this.mtimer = new DispatcherTimer();
-                    this.mtimer.Interval = TimeSpan.FromMilliseconds(10);
+                    this.mtimer.Interval = TimeSpan.FromMilliseconds(0);
                     this.mtimer.Tick += this.OnTimer;
                     this.mtimer.Start();
 

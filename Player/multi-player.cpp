@@ -151,11 +151,34 @@ void MultiPlayer::OnKeyDown(const SDL_Event &event)
 		break;
 	} case SDLK_d: {
 		 this->ItermDisplayGrid();
+		 break;
     } case SDLK_LEFT: {
 		this->PageLeft();
+		break;
     } case SDLK_RIGHT: {
 		this->PageRight();
+		break;
     }
+	}
+}
+
+void MultiPlayer::OnMouseDown(const SDL_Event &event)
+{
+	switch (event.button.button)
+	{
+	case SDL_BUTTON_RIGHT: {
+		// calculate index clicked
+		int grid = this->mmerger.GetDisplayGrid();
+		int hindex = event.button.x / (GetWidth() / grid);
+		int vindex = event.button.y / (GetHeight() / grid);
+		int index = vindex * grid + hindex + mmerger.GetStartPage() * grid;
+		// show
+		this->ShowSingle(index);
+		LOGD("Mouse right button click at %d %d, go to index %d",
+			event.button.x, event.button.y, index);
+		break;
+	} default:
+		break;
 	}
 }
 
@@ -167,7 +190,7 @@ void MultiPlayer::OnTimer(void *opaque)
 	map<int, shared_ptr<MyAVFrame>> framesMap;
 	for (auto iter = mplayerList.begin(); iter != mplayerList.end(); iter++) {
 		shared_ptr<OnePlayer> onePlayer = *iter;
-		shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(100));
+		shared_ptr<MyAVFrame> frame = onePlayer->mqueue.Get(0, milliseconds(10));
 		if (NULL == frame.get())
 			frame = onePlayer->mcachedFrame;
 		else
@@ -217,7 +240,7 @@ void MultiPlayer::OnFrame(Stream &stream, void *tag, AVPacket &packet,
 void MultiPlayer::ItermDisplayGrid()
 {
 	// change display grid with column and row
-	int newGrid = (mmerger.GetDisplayGrid()) % 3 + 1;
+	int newGrid = (mmerger.GetDisplayGrid()) % mmerger.GetMaxGrid() + 1;
 	mmerger.SetDisplayGrid(newGrid);
 }
 
@@ -248,6 +271,16 @@ void MultiPlayer::PageRight()
 	LOGD("Set merger start page to: %d", mmerger.GetStartPage());
 }
 
-}
+void MultiPlayer::ShowSingle(int index)
+{
+	if (index < 0 || index >= (int)mplayerList.size()) {
+		LOGE("index out of range: %d", index);
+		return;
+	}
+
+	mmerger.SetDisplayGrid(1);
+	mmerger.SetStartPage(index);
 }
 
+}
+}

@@ -141,7 +141,7 @@ int Player::OnOpen()
 		AVDictionary *options = 0;
 		av_dict_set(&options, "rtsp_transport", "tcp", 0);
 		// av_dict_set(&options, "rtsp_transport", "udp", 0);
-		av_dict_set(&options, "probesize", "50000", 0); // to fix video not sync problem
+		av_dict_set(&options, "probesize", "300000", 0); // to fix video not sync problem
 		// av_dict_set(&options, "fflags", "nobuffer", 0);
 		// av_dict_set(&options, "analyzeduration", "50", 0);
 		// av_dict_set(&options, "max_delay", "5", 0);

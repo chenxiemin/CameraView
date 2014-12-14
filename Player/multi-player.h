@@ -31,6 +31,8 @@ class MultiPlayer : public cxm::sdl::SDL,
 		std::shared_ptr<Scaler> mscaler;
 		cxm::alg::SafeQueue<MyAVFrame> mqueue;
 		std::shared_ptr<MyAVFrame> mcachedFrame;
+
+		OnePlayer() : mqueue(10) { }
 	};
 
 	private: AVFormatContext *pFormatCtx;
@@ -77,9 +79,12 @@ class MultiPlayer : public cxm::sdl::SDL,
 	public: void ItermDisplayGrid();
 	public: void PageLeft();
 	public: void PageRight();
+	// show [index] picture in 1x1 grid
+	public: void ShowSingle(int index);
 
 	private: virtual void OnTimer(void *opaque);
 	private: virtual void OnKeyDown(const SDL_Event &event);
+	public: virtual void OnMouseDown(const SDL_Event &event);
 	private: virtual int OnPlayerProcdule(Player &player, void *procduleTag,
 		CXM_PLAYER_EVENT event, std::shared_ptr<cxm::util::object> args);
 	private: virtual void OnFrame(Stream &stream, void *tag, AVPacket &packet,
