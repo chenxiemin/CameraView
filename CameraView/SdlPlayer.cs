@@ -49,5 +49,11 @@ namespace CameraView
 
         [DllImport("Player.dll")]
         public static extern int SdlIsRecording(int channel);
+
+        [DllImport("Player.dll")]
+        public static extern void SdlMouseEvent(int type, int button, int x, int y);
+
+        public const int SDL_EVENT_MOUSE_BUTTON_DOWN = 0x401;
+        public const int SDL_MOUSE_BUTTON_RIGHT = 3;
     }
 }

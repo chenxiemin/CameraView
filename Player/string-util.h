@@ -16,7 +16,7 @@ class StringUtil {
 		size_t offsetStart = 0;
 		size_t offsetEnd = 0;
 		while (std::string::npos != (offsetEnd = str.find(spliter, offsetStart))) {
-			std::string sub = str.substr(offsetStart, offsetEnd);
+			std::string sub = str.substr(offsetStart, offsetEnd - offsetStart);
 			if (sub.length() > 0)
 				container.push_back(sub);
 			offsetStart = offsetEnd + 1;

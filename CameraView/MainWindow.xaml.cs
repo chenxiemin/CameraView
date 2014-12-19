@@ -23,14 +23,13 @@ namespace CameraView
     /// </summary>
     public partial class MainWindow : Window, PlayerCallback
     {
-        // private string mplayUrl = "rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
-        private string mplayUrl = "rtsp://192.168.0.11/live-high";
+        private string mplayUrl = "rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
+        // private string mplayUrl = "rtsp://192.168.0.11/live-high";
         // private string mplayUrl = "rtsp://127.0.0.1/test.264 rtsp://127.0.0.1/test10.264";
         public MainWindow()
         {
             InitializeComponent();
 
-            // this.SourceInitialized += this.OnSourceInitialized;
             this.Loaded += this.OnLoaded;
         }
 

@@ -100,6 +100,8 @@ namespace Win32ControlInWpfWindow
         internal const int WM_KEYDOWN = 0x100;
         internal const int WM_LBUTTONDOWN = 0x201;
         internal const int WM_LBUTTONUP = 0x202;
+        internal const int WM_RBUTTONDOWN = 0x204;
+        internal const int WM_NCHITTEST = 0x84;
 
         // 
         // SetWindowPos flags

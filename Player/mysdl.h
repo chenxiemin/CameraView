@@ -62,6 +62,7 @@ class SDL
 
 	public: void EventLoop();
 	public: void PollEvent();
+	public: void PushEvent(SDL_Event &event);
 	public: void ShowFrame(std::shared_ptr<cxm::av::MyAVPicture> picture);
 	public: void AddTimer(int delayMils, ISDLTimer *pcallback, void *opaque);
 

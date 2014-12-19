@@ -135,6 +135,11 @@ namespace sdl {
 		this->DispatchEvent(event);
 	}
 
+	void SDL::PushEvent(SDL_Event &event)
+	{
+		SDL_PushEvent(&event);
+	}
+
 	int SDL::DispatchEvent(const SDL_Event &event)
 	{
 		if (SDL_QUIT == event.type) {

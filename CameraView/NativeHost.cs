@@ -89,7 +89,16 @@ namespace CameraView
                     this.mtimer.Start();
 
                     break;
-                case NativeMethods.WM_LBUTTONUP:
+
+                /*
+                case NativeMethods.WM_RBUTTONDOWN:
+                    Console.WriteLine("The RBUTTONDOWN");
+                    break;
+                */
+                case NativeMethods.WM_NCHITTEST:
+                    handled = true;
+                    return (IntPtr)1;
+                default:
                     break;
             }
 

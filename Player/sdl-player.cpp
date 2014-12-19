@@ -120,3 +120,15 @@ extern "C" EXPORT_HEAD(int) SdlIsRecording(int playerId)
 
 	return (int)sdl->IsRecord(playerId);
 }
+
+extern "C" EXPORT_HEAD(void) SdlMouseEvent(int type, int button, int x, int y)
+{
+	assert(NULL != sdl.get());
+
+	SDL_Event event;
+	event.type = type;
+	event.button.button = button;
+	event.button.x = x;
+	event.button.y = y;
+	sdl->PushEvent(event);
+}
