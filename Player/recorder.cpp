@@ -11,7 +11,7 @@ namespace cxm {
 namespace av {
 
 Recorder::Recorder(shared_ptr<Player> player) :
-	mplayer(player), mcontext(NULL), misRun(false)
+	mplayer(player), mcontext(NULL), misRun(false), mpframe(NULL)
 {
 }
 
@@ -88,6 +88,8 @@ int Recorder::Start(const string &fileName, int recordTime)
 		}
 		av_dump_format(mcontext, 0, fileName.c_str(), 1);
 
+		// alloc frame for decode
+		mpframe = av_frame_alloc();
 		// register notify
 		mplayer->SetPlayerProcdule(this, NULL);
 		// start thread
@@ -127,13 +129,16 @@ void Recorder::Stop()
 		LOGE("Cannot close avio: %d", res);
 	avformat_free_context(mcontext);
 	mcontext = NULL;
+	if (NULL != mpframe) {
+		av_free(mpframe);
+		mpframe = NULL;
+	}
 }
 
 void Recorder::Run()
 {
 	int res = 0;
 	bool isKey = false;
-	AVFrame *frame = av_frame_alloc();
 	int64_t startPts = 0;
 
 	// decode to get the first key frame
@@ -150,7 +155,7 @@ void Recorder::Run()
 
 		if (!isKey) {
 			int gotPicture = -1;
-			res = avcodec_decode_video2(pcodecContext, frame, &gotPicture, &pkt);
+			res = avcodec_decode_video2(pcodecContext, mpframe, &gotPicture, &pkt);
 			if (1 == gotPicture) {
 				LOGD("Packet flag: %d, got picture: %d, res: %d", pkt.flags, gotPicture, res);
 				isKey = true;

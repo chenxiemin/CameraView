@@ -20,7 +20,6 @@ namespace Win32ControlInWpfWindow
             return ((uint)doubleWord & 0xFFFF);
         }
 
-
         //
         // DLL Imports
         //

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (CameraView)
 
 # build type
-set(CMAKE_BUILD_TYPE Release CACHE STRING
+set(CMAKE_BUILD_TYPE Debug CACHE STRING
 		"Choose the type of build, options are: Debug Release")
 
 # output directory

@@ -32,7 +32,7 @@
                     TextBlock.FontSize="12">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
-                        <!--
+                    <!--
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="TabItem">
@@ -54,8 +54,7 @@
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
-                 
--->
+                    -->
                     </Style>
                 </TabControl.Resources>
 
@@ -119,7 +118,14 @@
                             </Grid>
                         </StackPanel>
                     </StackPanel>
-
+                </TabItem>
+                
+                <!-- 回放 -->
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="回放" TextBlock.FontSize="12" />
+                    </TabItem.Header>
+                    
                 </TabItem>
             </TabControl>
 

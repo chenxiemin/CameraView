@@ -21,7 +21,7 @@
 
 #ifdef _WIN32
 #include <Windows.h>
-#include <vld.h>
+// #include <vld.h>
 #endif
 
 #ifdef _WIN32

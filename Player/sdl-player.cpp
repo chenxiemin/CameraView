@@ -43,7 +43,6 @@ extern "C" EXPORT_HEAD(void) SdlTimer()
 
 extern "C" EXPORT_HEAD(void) SdlMain(int width, int height, const char *url)
 {
-	assert(NULL != sdl.get());
     assert(width > 0 && height > 0);
 
 	MultiPlayer player(width, height, NULL);
