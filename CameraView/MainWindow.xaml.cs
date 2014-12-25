@@ -24,6 +24,7 @@ namespace CameraView
     public partial class MainWindow : Window, PlayerCallback
     {
         private string mplayUrl = "rtsp://192.168.0.128/12 rtsp://192.168.0.129/12 rtsp://192.168.0.130/12 rtsp://192.168.0.131/12";
+        private string mrecordingFolder = "./video/";
         // private string mplayUrl = "rtsp://192.168.0.11/live-high";
         // private string mplayUrl = "rtsp://127.0.0.1/test.264 rtsp://127.0.0.1/test10.264";
         public MainWindow()
@@ -97,9 +98,62 @@ namespace CameraView
             }
             else
             {
-                SdlPlayer.SdlRecording(new StringBuilder(index), int.Parse(index), 1000);
-                tb.Foreground = new SolidColorBrush(Colors.Red);
+                try {
+                    string fileName = mrecordingFolder + "/" + index + "/";
+                    fileName = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), fileName);
+                    System.IO.Directory.CreateDirectory(fileName);
+                    fileName = System.IO.Path.Combine(fileName, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss"));
+                    SdlPlayer.SdlRecording(new StringBuilder(fileName), int.Parse(index), 1000);
+                    tb.Foreground = new SolidColorBrush(Colors.Red);
+                } catch(Exception e1) {
+                    MessageBox.Show("Cannot recording: " + e1);
+                }
             }
+        }
+
+        private void OnTabSelectionChanged(object sender, EventArgs args)
+        {
+            if (!recordingTabItem.IsSelected)
+                return;
+
+            recordingTree.Items.Clear();
+            AddRecording(recordingTree.Items, new System.IO.DirectoryInfo(System.IO.Path.Combine(
+                System.IO.Directory.GetCurrentDirectory(), mrecordingFolder)));
+        }
+
+        private void AddRecording(ItemCollection item, System.IO.DirectoryInfo directory)
+        {
+            try {
+                System.IO.FileSystemInfo[] subInfos = directory.GetFileSystemInfos();
+                foreach (System.IO.FileSystemInfo info in subInfos) {
+                    if (info is System.IO.FileInfo) {
+                        if (info.Extension == ".mp4") {
+                            TreeViewItem fileTreeViewItem = new TreeViewItem();
+                            item.Add(fileTreeViewItem);
+
+                            fileTreeViewItem.Header = (info as System.IO.FileInfo).Name;
+                            fileTreeViewItem.Tag = info;
+                            fileTreeViewItem.MouseDoubleClick += OnTreeViewItemDoubleClick;
+                        }
+                    } else if (info is System.IO.DirectoryInfo) {
+                        TreeViewItem subTreeViewItem = new TreeViewItem();
+                        item.Add(subTreeViewItem);
+
+                        subTreeViewItem.Header = info;
+                        AddRecording(subTreeViewItem.Items, (info as System.IO.DirectoryInfo));
+                    }
+                }
+            } catch (Exception e) {
+                Console.WriteLine("Add recording error: " + e);
+            }
+        }
+
+        private void OnTreeViewItemDoubleClick(object sender, EventArgs args)
+        {
+            TreeViewItem item = sender as TreeViewItem;
+            System.IO.FileInfo info = item.Tag as System.IO.FileInfo;
+
+            System.Diagnostics.Process.Start(info.FullName);
         }
     }
 }

@@ -29,7 +29,7 @@
             </Grid.ColumnDefinitions>
 
             <TabControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    TextBlock.FontSize="12">
+                    TextBlock.FontSize="12" SelectionChanged="OnTabSelectionChanged">
                 <TabControl.Resources>
                     <Style TargetType="TabItem">
                     <!--
@@ -121,11 +121,12 @@
                 </TabItem>
                 
                 <!-- 回放 -->
-                <TabItem>
+                <TabItem Name="recordingTabItem">
                     <TabItem.Header>
                         <TextBlock Text="回放" TextBlock.FontSize="12" />
                     </TabItem.Header>
                     
+                    <TreeView Name="recordingTree" />
                 </TabItem>
             </TabControl>
 
