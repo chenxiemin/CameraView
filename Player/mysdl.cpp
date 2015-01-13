@@ -175,6 +175,10 @@ namespace sdl {
 
 	void SDL::AddTimer(int delayMils, ISDLTimer *pcallback, void *opaque)
 	{
+		if (NULL == pcallback) {
+			LOGE("NULL timer callback");
+			return;
+		}
 		SDLTimerTag *tag = new SDLTimerTag();
 		tag->thiz = this;
 		tag->pcallback = pcallback;
@@ -182,7 +186,21 @@ namespace sdl {
 
 		// add to list
 		mTimerTagList.push_back(shared_ptr<SDLTimerTag>(tag));
-		SDL_AddTimer(delayMils, TimerHelper, tag);
+		tag->id = SDL_AddTimer(delayMils, TimerHelper, tag);
+	}
+
+	void SDL::RemoveTimer(ISDLTimer *pcallback)
+	{
+		if (NULL == pcallback)
+			return;
+
+		auto copyList = mTimerTagList;
+		for (auto iter = copyList.begin(); iter != copyList.end(); iter++) {
+			if ((*iter)->pcallback == pcallback) {
+				SDL_RemoveTimer((*iter)->id); // stop timer
+				mTimerTagList.erase(iter - copyList.begin() + mTimerTagList.begin()); // erase
+			}
+		}
 	}
 
 	uint32_t SDL::TimerHelper(uint32_t interval, void *opaque)

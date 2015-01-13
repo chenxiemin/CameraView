@@ -29,10 +29,9 @@
 #include <string.h>
 
 #define LOGD(...) LOG(LOG_LEVEL_D, __VA_ARGS__)
-
-#define LOGE(...) LOG(LOG_LEVEL_E, __VA_ARGS__)
-
 #define LOGI(...) LOG(LOG_LEVEL_I, __VA_ARGS__)
+#define LOGW(...) LOG(LOG_LEVEL_W, __VA_ARGS__)
+#define LOGE(...) LOG(LOG_LEVEL_E, __VA_ARGS__)
 
 #define __MY_FILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 

@@ -76,6 +76,15 @@ class MultiPlayer : public cxm::sdl::SDL,
 		return mplayerList;
 	}
 
+	public: std::shared_ptr<OnePlayer> GetPlayerByUrl(std::string url)
+	{
+		for (auto iter = mplayerList.begin(); iter != mplayerList.end(); iter++)
+			if ((*iter)->mplayer->GetURL() == url)
+				return *iter;
+
+		return NULL;
+	}
+
 	public: void ItermDisplayGrid();
 	public: void PageLeft();
 	public: void PageRight();

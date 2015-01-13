@@ -55,5 +55,6 @@ extern "C" EXPORT_HEAD(void) SdlStopRecording(int playerId);
 extern "C" EXPORT_HEAD(int) SdlIsRecording(int playerId);
 
 extern "C" EXPORT_HEAD(void) SdlMouseEvent(int type, int button, int x, int y);
+extern "C" EXPORT_HEAD(void) test();
 
 #endif

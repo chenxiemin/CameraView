@@ -8,6 +8,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+#if 0
     int width = 640;
     int height = 360;
     
@@ -27,6 +28,9 @@ int main(int argc, char **argv)
         }
     }
 	SdlMain(width, height, url.c_str());
+#else
+	test();
+#endif
 
 	return 0;
 }

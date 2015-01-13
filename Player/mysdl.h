@@ -21,7 +21,7 @@
 
 #include <memory>
 #include <chrono>
-#include <list>
+#include <vector>
 #include <mutex>
 #include <string>
 
@@ -40,9 +40,10 @@ class ISDLTimer {
 class SDL
 {
 	struct SDLTimerTag {
-		SDL 			*thiz;
+		SDL *thiz;
 		ISDLTimer *pcallback;
-		void 				*opaque;
+		void *opaque;
+		SDL_TimerID id;
 	};
 	public: static const PixelFormat PIXEL_FORMAT = AV_PIX_FMT_YUV420P;
 	private: static const int CXM_SDL_TIMER_EVENT = SDL_USEREVENT + 2;
@@ -54,7 +55,7 @@ class SDL
 	private: SDL_Window *mwindow;
 	private: SDL_Renderer *mrender;
 	private: SDL_Texture *mtexture;
-	private: std::list<std::shared_ptr<SDLTimerTag>> mTimerTagList;
+	private: std::vector<std::shared_ptr<SDLTimerTag>> mTimerTagList;
 	private: cxm::util::Analysiser analysis;
 
 	public: SDL(int width, int height, void *opaque);
@@ -65,6 +66,7 @@ class SDL
 	public: void PushEvent(SDL_Event &event);
 	public: void ShowFrame(std::shared_ptr<cxm::av::MyAVPicture> picture);
 	public: void AddTimer(int delayMils, ISDLTimer *pcallback, void *opaque);
+	public: void RemoveTimer(ISDLTimer *pcallback);
 
 	public: virtual void OnMouseDown(const SDL_Event &event) { } // do nothing
 	public: virtual void OnKeyDown(const SDL_Event &event) { } // do nothing
