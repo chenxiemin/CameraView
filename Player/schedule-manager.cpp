@@ -42,7 +42,8 @@ void ScheduleManager::Scheduling(std::chrono::system_clock::time_point nowTime)
 		auto copyList = mscheduledList;
 		for (auto iter = copyList.begin(); iter != copyList.end(); iter++) {
 			if ((*iter)->NeedRechedule(nowTime) > 0) {
-				mscheduledList.erase(iter - copyList.begin() + mscheduledList.begin());
+				// mscheduledList.erase(iter - copyList.begin() + mscheduledList.begin());
+				RemoveSchedule(mscheduledList, *iter);
 				mscheduleList.push_back(*iter);
 
 				// confirm status
@@ -55,18 +56,24 @@ void ScheduleManager::Scheduling(std::chrono::system_clock::time_point nowTime)
 	}
 	lastSec = sec;
 
-	// check schedule list to add unscheduled list to scheduling list
+	// check schedule list to add schedule list to scheduling list
 	auto copyList = mscheduleList;
 	for (auto iter = copyList.begin(); iter != copyList.end(); iter++) {
 		if ((*iter)->NeedSchedule(nowTime) > 0) {
-			mscheduleList.erase(iter - copyList.begin() + mscheduleList.begin());
-			mschedulingList.push_back(*iter);
-
 			// schedule
-			if (!(*iter)->IsSchedule())
-				(*iter)->DoSchedule();
-			else
+			if (!(*iter)->IsSchedule()) {
+				int res = (*iter)->DoSchedule();
+				if (0 != res) {
+					LOGE("Schedule fail: %d", res);
+					continue;
+				}
+			} else {
 				LOGE("Unwanted schedule status");
+			}
+
+			// mscheduleList.erase(iter - copyList.begin() + mscheduleList.begin());
+			RemoveSchedule(mscheduleList, *iter);
+			mschedulingList.push_back(*iter);
 		}
 	}
 
@@ -74,7 +81,8 @@ void ScheduleManager::Scheduling(std::chrono::system_clock::time_point nowTime)
 	auto copySchedulingList = mschedulingList;
 	for (auto iter = copySchedulingList.begin(); iter != copySchedulingList.end(); iter++) {
 		if ((*iter)->NeedSchedule(nowTime) <= 0) {
-			mschedulingList.erase(iter - copySchedulingList.begin() + mschedulingList.begin());
+			// mschedulingList.erase(iter - copySchedulingList.begin() + mschedulingList.begin());
+			RemoveSchedule(mschedulingList, *iter);
 			mscheduledList.push_back(*iter);
 
 			if ((*iter)->IsSchedule())
@@ -103,6 +111,15 @@ int ScheduleManager::Add(shared_ptr<Schedule> schedule, string playerUrl)
 	mscheduleList.push_back(schedule);
 
 	return 0;
+}
+
+void ScheduleManager::RemoveSchedule(vector<shared_ptr<Schedule>> list, shared_ptr<Schedule> schedule)
+{
+	for (auto iter = list.begin(); iter != list.end(); iter++)
+		if ((*iter).get() == schedule.get()) {
+			list.erase(iter);
+			return;
+		}
 }
 
 }

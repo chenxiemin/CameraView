@@ -3,6 +3,7 @@
 #include "schedule.h"
 #include "log.h"
 #include "time-helper.h"
+#include "schedule-manager.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -126,10 +127,33 @@ void WeekPeriodSchedule::OnUndoSchedule()
 	LOGD("In week period schedule undoschedule");
 }
 
+int AlwaysSchedule::OnDoSchedule()
+{
+	shared_ptr<MultiPlayer> multiPlayer = ScheduleManager::GetInstance()->GetMultiPlayer();
+	if (multiPlayer->IsRecord(this->monePlayer)) {
+		LOGE("Already in schedule for player: %d", this->monePlayer->mid);
+		return -1;
+	}
+
+	return multiPlayer->Record(this->monePlayer);
+}
+
+void AlwaysSchedule::OnUndoSchedule()
+{
+	shared_ptr<MultiPlayer> multiPlayer = ScheduleManager::GetInstance()->GetMultiPlayer();
+	if (!multiPlayer->IsRecord(this->monePlayer)) {
+		LOGE("player not in recording: %d", this->monePlayer->mid);
+		return;
+	}
+	multiPlayer->StopRecord(this->monePlayer);
+}
+
 shared_ptr<Schedule> ScheduleFactory::GetSchedule(string type, string schedule)
 {
 	if ("WeekPeriodSchedule" == type) {
 		return shared_ptr<Schedule>(new WeekPeriodSchedule(schedule));
+	} else if ("AlwaysSchedule" == type) {
+		return shared_ptr<Schedule>(new AlwaysSchedule());
 	} else {
 		LOGE("Unknown schedule: %s", type.c_str());
 		return NULL;

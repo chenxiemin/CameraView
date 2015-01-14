@@ -56,8 +56,11 @@ class MultiPlayer : public cxm::sdl::SDL,
 	public: void Close();
 
 	public: int Record(const std::string &fileName, int channel, int time);
+	public: int Record(std::shared_ptr<OnePlayer> onePlayer);
 	public: void StopRecord(int playerId);
+	public: void StopRecord(std::shared_ptr<OnePlayer> onePlayer);
 	public: bool IsRecord(int playerId);
+	public: bool IsRecord(std::shared_ptr<OnePlayer> onePlayer);
 
 	/*
 	public: int GetPlayerCount() { return mplayerList.size(); }

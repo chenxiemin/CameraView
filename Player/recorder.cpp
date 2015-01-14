@@ -11,7 +11,7 @@ namespace cxm {
 namespace av {
 
 Recorder::Recorder(shared_ptr<Player> player) :
-	mplayer(player), mcontext(NULL), misRun(false), mpframe(NULL)
+	mplayer(player), mcontext(NULL), misRun(false), mpframe(NULL), moutStream(NULL)
 {
 }
 
@@ -30,6 +30,13 @@ int Recorder::Start(const string &fileName, int recordTime)
 	LOGD("Start record player: %s %d", fileName.c_str(), recordTime);
 
 	do {
+		// check recording stream
+		int streamSize = mplayer->GetStreamSize();
+		if (streamSize < 1) {
+			LOGE("Cannot get stream size: %d", streamSize);
+			break;
+		}
+		
 		// format
 		vector<string> suffixes;
 		StringUtil::Split(fileName, '.', suffixes);
@@ -38,7 +45,7 @@ int Recorder::Start(const string &fileName, int recordTime)
 			LOGE("Cannot guess format by suffix: %s", suffixes.back().c_str());
 			break;
 		}
-		
+
 		// context
 		mcontext = avformat_alloc_context();
 		if (NULL == mcontext) {
@@ -52,35 +59,29 @@ int Recorder::Start(const string &fileName, int recordTime)
 			break;
 		}
 
-		// get recording stream
-		int streamSize = mplayer->GetStreamSize();
-		if (streamSize < 1) {
-			LOGE("Cannot get stream size: %d", streamSize);
-			break;
-		}
 		AVStream *pstream = mplayer->GetStream(0)->GetStream();
 		AVCodecContext *streamContext = mplayer->GetStream(0)->GetContext();
 		// new stream
-		outStream = avformat_new_stream(mcontext, NULL);
-		if (NULL == outStream) {
+		moutStream = avformat_new_stream(mcontext, NULL);
+		if (NULL == moutStream) {
 			LOGE("Cannot open stream");
 			break;
 		}
-		res = avcodec_copy_context(outStream->codec, streamContext);
+		res = avcodec_copy_context(moutStream->codec, streamContext);
 		if (0 != res) {
 			LOGE("Cannot copy context: %d", res);
 			break;
 		}
 #if 0
-		outStream->sample_aspect_ratio.num = streamContext->sample_aspect_ratio.num;
-		outStream->sample_aspect_ratio.den = streamContext->sample_aspect_ratio.den;
-		outStream->r_frame_rate = pstream->r_frame_rate;
-		outStream->avg_frame_rate = outStream->r_frame_rate;
-		outStream->time_base = av_inv_q(outStream->r_frame_rate);
-		outStream->codec->time_base = outStream->time_base;
+		moutStream->sample_aspect_ratio.num = streamContext->sample_aspect_ratio.num;
+		moutStream->sample_aspect_ratio.den = streamContext->sample_aspect_ratio.den;
+		moutStream->r_frame_rate = pstream->r_frame_rate;
+		moutStream->avg_frame_rate = moutStream->r_frame_rate;
+		moutStream->time_base = av_inv_q(moutStream->r_frame_rate);
+		moutStream->codec->time_base = moutStream->time_base;
 #endif
-		outStream->time_base = pstream->time_base;
-		outStream->codec->time_base = pstream->time_base;
+		moutStream->time_base = pstream->time_base;
+		moutStream->codec->time_base = pstream->time_base;
 		res = avformat_write_header(mcontext, NULL);
 		if (0 != res) {
 			LOGE("Cannot write header: %d", res);
@@ -121,12 +122,17 @@ void Recorder::Stop()
 		mthread.reset();
 	}
 
-	int res = av_write_trailer(mcontext);
-	if (0 != res)
-		LOGE("Cannot write trailer: %d", res);
-	res = avio_close(mcontext->pb);
-	if (0 != res)
-		LOGE("Cannot close avio: %d", res);
+	if (NULL != mcontext->pb) {
+		if (NULL != moutStream) {
+			int res = av_write_trailer(mcontext);
+			if (0 != res)
+				LOGE("Cannot write trailer: %d", res);
+		}
+		int res = avio_close(mcontext->pb);
+		if (0 != res)
+			LOGE("Cannot close avio: %d", res);
+	}
+
 	avformat_free_context(mcontext);
 	mcontext = NULL;
 	if (NULL != mpframe) {

@@ -58,6 +58,16 @@ class WeekPeriodSchedule : public Schedule
 	protected: virtual void OnUndoSchedule();
 };
 
+class AlwaysSchedule : public Schedule
+{
+	public: AlwaysSchedule() : Schedule("") { }
+	public: virtual int NeedSchedule(std::chrono::system_clock::time_point nowTime) { return 1; }
+	public: virtual int NeedRechedule(std::chrono::system_clock::time_point nowTime) { return 1; }
+
+	protected: virtual int OnDoSchedule();
+	protected: virtual void OnUndoSchedule();
+};
+
 class ScheduleFactory 
 {
 	public: static std::shared_ptr<Schedule> GetSchedule(std::string type, std::string schedule);

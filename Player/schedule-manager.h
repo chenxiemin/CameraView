@@ -59,6 +59,11 @@ class ScheduleManager : public cxm::sdl::ISDLTimer
 			instance = NULL;
 		}
 	}
+
+	public: std::shared_ptr<MultiPlayer> GetMultiPlayer() { return mplayer; }
+
+	private: static void RemoveSchedule(std::vector<std::shared_ptr<Schedule>> list,
+		std::shared_ptr<Schedule> schedule);
 };
 
 }

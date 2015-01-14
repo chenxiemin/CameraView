@@ -1,11 +1,15 @@
 #include <chrono>
 #include <map>
+#include <stdlib.h>
+#include <sstream>
 
 #include "multi-player.h"
 #include "scaler.h"
 #include "stream.h"
 #include "recorder.h"
 #include "string-util.h"
+#include "time-helper.h"
+#include "path-helper.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -70,8 +74,33 @@ int MultiPlayer::Record(const std::string &fileName, int channel, int time)
 
 	// start record TODO fix hard code
 	shared_ptr<Recorder> recorder(new Recorder(onePlayer->mplayer));
+	int res = recorder->Start(fileName + ".mp4", time);
+	if (0 != res) {
+		LOGE("Start record failed: %d", res);
+		return res;
+	}
+
 	mrecorderList.push_back(recorder);
-	return recorder->Start(fileName + ".mp4", time);
+	return 0;
+}
+
+int MultiPlayer::Record(std::shared_ptr<OnePlayer> onePlayer)
+{
+	string fileName = TimerHelper::Format(system_clock::now(), "%Y-%m-%d-%H-%M-%S");
+	stringstream folder;
+	folder << "./video/";
+	folder << onePlayer->mid;
+	folder << "/";
+	string folderString = folder.str();
+
+	// mkdir if nedessary
+	if (!PathHelper::IsExist(folderString.c_str()) &&
+		0 != PathHelper::CreateDirectory(folderString.c_str())) {
+		LOGE("Cannot create directory");
+		return -1;
+	}
+
+	return Record(folderString + fileName, onePlayer->mid, 10000);
 }
 
 void MultiPlayer::StopRecord(int playerId)
@@ -93,6 +122,11 @@ void MultiPlayer::StopRecord(int playerId)
 	}
 }
 
+void MultiPlayer::StopRecord(shared_ptr<OnePlayer> onePlayer)
+{
+	StopRecord(onePlayer->mid);
+}
+
 bool MultiPlayer::IsRecord(int playerId)
 {
 	for (auto oneIter = this->mplayerList.begin();
@@ -110,6 +144,11 @@ bool MultiPlayer::IsRecord(int playerId)
 	}
 
 	return false;
+}
+
+bool MultiPlayer::IsRecord(shared_ptr<OnePlayer> onePlayer)
+{
+	return IsRecord(onePlayer->mid);
 }
 
 void MultiPlayer::OnKeyDown(const SDL_Event &event)
